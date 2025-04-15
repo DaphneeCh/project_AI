@@ -4,7 +4,7 @@ This module contains the Board class which manages the game grid, piece placemen
 movement, and board state visualization.
 """
 
-from .pieces import Piece
+from pieces import Piece
 
 class Board:
     """
