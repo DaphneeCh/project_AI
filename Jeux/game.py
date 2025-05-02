@@ -4,8 +4,8 @@ This module contains the Game class which handles turn management, move validati
 win conditions, and game state tracking.
 """
 
-from board import Board
-from moves import get_valid_moves
+from Jeux.board import Board
+from Jeux.moves import get_valid_moves
 
 class Game:
     """
