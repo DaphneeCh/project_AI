@@ -20,13 +20,13 @@ class Piece:
     
     Attributes:
         type (str): The type of piece (General, Advisor, Elephant, etc.)
-        color (str): The color of the piece ('Red' or 'Black')
+        color (str): The color of the piece ('White' or 'Black')
         x (int): The x-coordinate (column) of the piece on the board
         y (int): The y-coordinate (row) of the piece on the board
     """
     def __init__(self, type, color, x, y):
         self.type = type
-        self.color = color  # 'Red' or 'Black'
+        self.color = color  # 'White' or 'Black'
         self.x = x
         self.y = y
 

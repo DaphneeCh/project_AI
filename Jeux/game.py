@@ -13,23 +13,23 @@ class Game:
     
     Attributes:
         board (Board): The game board
-        current_player (str): The current player ('Red' or 'Black')
+        current_player (str): The current player ('White' or 'Black')
         game_over (bool): Whether the game has ended
         winner (str or None): The winner of the game, if any
         captured_pieces (dict): Pieces captured by each player
     """
     def __init__(self):
         self.board = Board()
-        self.current_player = 'Red'  # Red goes first
+        self.current_player = 'White'
         self.game_over = False
         self.winner = None
-        self.captured_pieces = {'Red': [], 'Black': []}
+        self.captured_pieces = {'White': [], 'Black': []}
 
     def switch_player(self):
         """
-        Switches the current player from Red to Black or vice versa.
+        Switches the current player from White to Black or vice versa.
         """
-        self.current_player = 'Black' if self.current_player == 'Red' else 'Red'
+        self.current_player = 'Black' if self.current_player == 'White' else 'White'
 
     def make_move(self, from_pos, to_pos):
         """
@@ -78,7 +78,7 @@ class Game:
     def display_game(self):
         print(f"\nCurrent player: {self.current_player}")
         self.board.display()
-        print(f"Captured by Red: {', '.join(str(p) for p in self.captured_pieces['Red'])}")
+        print(f"Captured by White: {', '.join(str(p) for p in self.captured_pieces['White'])}")
         print(f"Captured by Black: {', '.join(str(p) for p in self.captured_pieces['Black'])}")
         if self.game_over:
             print(f"Game over! Winner: {self.winner}")

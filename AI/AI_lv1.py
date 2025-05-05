@@ -40,7 +40,9 @@ class AI(BaseAI):
         # Calculate the value of each move
         valued_moves = []
         for move in all_moves:
+            # move is a tuple of ((from_x, from_y), (to_x, to_y))
             from_pos, to_pos = move
+            # from_pos and to_pos are tuples (x, y)
             from_x, from_y = from_pos
             to_x, to_y = to_pos
             

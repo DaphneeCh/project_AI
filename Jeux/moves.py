@@ -3,19 +3,20 @@ moves.py - Implements movement rules for Vietnamese Chess (Cờ Tướng)
 This module contains functions to calculate valid moves for each piece type
 according to the traditional rules of Vietnamese Chess.
 """
+import copy
 
 def get_valid_moves(piece, board):
     """
     Determines all valid moves for a given piece on the current board.
     
     Implements the specific movement rules for each piece type:
-    - General: Moves one step within the palace
-    - Advisor: Moves diagonally within the palace
-    - Elephant: Moves exactly two points diagonally, can't cross the river
-    - Horse: Moves in an L shape, can be blocked
-    - Chariot: Moves any distance horizontally or vertically
-    - Cannon: Moves like chariot but needs a platform to capture
-    - Soldier: Moves forward, can move horizontally after crossing the river
+    - General: Moves one space in any direction, restricted to the palace. Two Generals cannot face each other directly on the same line. If they do, there must be a piece from either side blocking their view.
+    - Advisor: Moves one space diagonally, restricted to the palace.
+    - Elephant: Moves diagonally two spaces, cannot cross the river. If there is another piece standing in the middle of that diagonal line, the Elephant is blocked and cannot move.
+    - Horse: Move in an 'L' shape, two squares in one direction and one square perpendicular. If there is another piece standing at the intersection adjacent to the vertical or horizontal step, the Horse is blocked and cannot move.
+    - Chariot: Moves horizontally or vertically any number of spaces
+    - Cannon: Moves like a Chariot but captures by jumping over one piece
+    - Soldier: Moves one space forward, can move sideways after crossing the river.
     
     Args:
         piece (Piece): The piece to find moves for
@@ -32,13 +33,13 @@ def get_valid_moves(piece, board):
         directions = [(0,1), (0,-1), (1,0), (-1,0)]
         for dx, dy in directions:
             nx, ny = x + dx, y + dy
-            if 3 <= nx <= 5 and ((0 <= ny <= 2 and piece.color == 'Black') or (7 <= ny <= 9 and piece.color == 'Red')):
+            if 3 <= nx <= 5 and ((0 <= ny <= 2 and piece.color == 'Black') or (7 <= ny <= 9 and piece.color == 'White')):
                 target = board.grid[ny][nx] if board.is_in_bounds(nx, ny) else None
                 if not target or target.color != piece.color:
                     # Create a temporary board to check if this move would result in facing generals
-                    temp_board = type(board)()
-                    temp_board.grid = [row[:] for row in board.grid]
-                    temp_board.move_piece(piece, nx, ny)
+                    temp_board = copy.deepcopy(board)
+                    temp_piece = temp_board.grid[y][x]
+                    temp_board.move_piece(temp_piece, nx, ny)
                     if not temp_board.is_general_facing_general():
                         moves.append((nx, ny))
     
@@ -47,7 +48,7 @@ def get_valid_moves(piece, board):
         directions = [(1,1), (1,-1), (-1,1), (-1,-1)]
         for dx, dy in directions:
             nx, ny = x + dx, y + dy
-            if 3 <= nx <= 5 and ((0 <= ny <= 2 and piece.color == 'Black') or (7 <= ny <= 9 and piece.color == 'Red')):
+            if 3 <= nx <= 5 and ((0 <= ny <= 2 and piece.color == 'Black') or (7 <= ny <= 9 and piece.color == 'White')):
                 target = board.grid[ny][nx] if board.is_in_bounds(nx, ny) else None
                 if not target or target.color != piece.color:
                     moves.append((nx, ny))
@@ -58,7 +59,7 @@ def get_valid_moves(piece, board):
         for dx, dy in directions:
             nx, ny = x + dx, y + dy
             # Check if the move is within bounds and doesn't cross the river
-            if board.is_in_bounds(nx, ny) and ((ny <= 4 and piece.color == 'Black') or (ny >= 5 and piece.color == 'Red')):
+            if board.is_in_bounds(nx, ny) and ((ny <= 4 and piece.color == 'Black') or (ny >= 5 and piece.color == 'White')):
                 # Check if the diagonal path is blocked
                 block_x, block_y = x + dx//2, y + dy//2
                 if not board.grid[block_y][block_x]:  # Path is clear
@@ -134,7 +135,7 @@ def get_valid_moves(piece, board):
             directions.append((0, 1))  # Move down
             if y > 4:  # Crossed the river
                 directions.extend([(1, 0), (-1, 0)])  # Can move horizontally
-        else:  # Red
+        else:  # White
             directions.append((0, -1))  # Move up
             if y < 5:  # Crossed the river
                 directions.extend([(1, 0), (-1, 0)])  # Can move horizontally

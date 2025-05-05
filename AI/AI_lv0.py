@@ -35,6 +35,6 @@ class AI(BaseAI):
         all_moves = self.get_all_valid_moves(game)
         
         if not all_moves:
-            return None  # No valid moves available
+            return None
             
         return random.choice(all_moves)
