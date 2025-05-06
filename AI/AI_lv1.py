@@ -5,6 +5,7 @@ This AI uses a simple greedy approach to select moves that capture the highest-v
 
 from AI.AI_base import BaseAI
 import random
+from Jeux.game import Game
 
 class AI(BaseAI):
     """
@@ -12,7 +13,7 @@ class AI(BaseAI):
     This AI prioritizes capturing opponent pieces, especially high-value ones.
     """
     
-    def __init__(self, color):
+    def __init__(self, color: str):
         """
         Initialize the Beginner AI.
         
@@ -22,7 +23,7 @@ class AI(BaseAI):
         super().__init__(color)
         self.name = "Beginner AI (Level 1)"
     
-    def get_move(self, game):
+    def get_move(self, game: Game)-> tuple[tuple[int, int], tuple[int, int]]:
         """
         Select a move prioritizing captures of high-value pieces.
         
@@ -34,7 +35,7 @@ class AI(BaseAI):
         """
         all_moves = self.get_all_valid_moves(game)
         
-        if not all_moves:
+        if len(all_moves) == 0:
             return None  # No valid moves available
         
         # Calculate the value of each move

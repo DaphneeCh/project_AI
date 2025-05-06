@@ -71,7 +71,7 @@ class Board:
                     self.grid[y][x].x = x
                     self.grid[y][x].y = y
 
-    def move_piece(self, piece, new_x, new_y):
+    def move_piece(self, piece: Piece, new_x: int, new_y: int):
         """
         Moves a piece to a new position on the board.
         
@@ -89,30 +89,30 @@ class Board:
         self.grid[new_y][new_x] = piece
         return captuWhite
 
-    def get_all_pieces(self, color):
+    def get_all_pieces(self, color: str)-> list:
         return [piece for row in self.grid for piece in row if piece and piece.color == color]
 
     def display(self):
         # Center column headers above each cell
         print("  ", end="")
         for i in range(9):
-            print(f"   {i}  ", end="")
+            print(f"  {i}  ", end="")
         print()
-        print("  +-----+-----+-----+-----+-----+-----+-----+-----+-----+")
+        print("  +----+----+----+----+----+----+----+----+----+")
         for y, row in enumerate(self.grid):
             print(f"{y} |", end="")
             for piece in row:
-                piece_str = str(piece) if piece else "--"
+                piece_str = str(piece) if piece else "  "
                 # Center the piece string in a 5-character space
-                print(f" {piece_str:^4}", end="|")
+                print(f"{piece_str:^4}", end="|")
             print()
-            print("  +-----+-----+-----+-----+-----+-----+-----+-----+-----+")
+            print("  +----+----+----+----+----+----+----+----+----+")
         print()
 
-    def is_in_bounds(self, x, y):
+    def is_in_bounds(self, x:int, y:int)-> bool:
         return 0 <= x < 9 and 0 <= y < 10
 
-    def is_general_facing_general(self):
+    def is_general_facing_general(self)-> bool:
         # Find both generals
         White_general = None
         black_general = None
@@ -137,7 +137,8 @@ class Board:
         max_y = max(White_general.y, black_general.y)
         
         for y in range(min_y + 1, max_y):
-            if self.grid[y][White_general.x]:
+            if self.grid[y][White_general.x] is not None:
+                # There is a piece blocking the line of sight
                 return False
                 
         return True

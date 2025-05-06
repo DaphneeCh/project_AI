@@ -24,7 +24,7 @@ class Piece:
         x (int): The x-coordinate (column) of the piece on the board
         y (int): The y-coordinate (row) of the piece on the board
     """
-    def __init__(self, type, color, x, y):
+    def __init__(self, type: str, color: str, x: int, y: int):
         self.type = type
         self.color = color  # 'White' or 'Black'
         self.x = x

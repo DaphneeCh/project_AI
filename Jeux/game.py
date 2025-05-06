@@ -31,7 +31,7 @@ class Game:
         """
         self.current_player = 'Black' if self.current_player == 'White' else 'White'
 
-    def make_move(self, from_pos, to_pos):
+    def make_move(self, from_pos: tuple[int,int], to_pos: tuple[int,int]) -> tuple[bool, str]:
         """
         Attempts to move a piece from one position to another.
         

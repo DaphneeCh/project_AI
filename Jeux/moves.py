@@ -4,8 +4,10 @@ This module contains functions to calculate valid moves for each piece type
 according to the traditional rules of Vietnamese Chess.
 """
 import copy
+from Jeux.pieces import Piece
+from Jeux.board import Board
 
-def get_valid_moves(piece, board):
+def get_valid_moves(piece: Piece, board: Board) -> list:
     """
     Determines all valid moves for a given piece on the current board.
     
@@ -38,8 +40,8 @@ def get_valid_moves(piece, board):
                 if not target or target.color != piece.color:
                     # Create a temporary board to check if this move would result in facing generals
                     temp_board = copy.deepcopy(board)
-                    temp_piece = temp_board.grid[y][x]
-                    temp_board.move_piece(temp_piece, nx, ny)
+                    temp__general_piece = temp_board.grid[y][x]
+                    temp_board.move_piece(temp__general_piece, nx, ny)
                     if not temp_board.is_general_facing_general():
                         moves.append((nx, ny))
     

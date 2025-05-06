@@ -5,6 +5,7 @@ This AI randomly selects from available valid moves without any strategy.
 
 import random
 from AI.AI_base import BaseAI
+from Jeux.game import Game
 
 class AI(BaseAI):
     """
@@ -12,7 +13,7 @@ class AI(BaseAI):
     This is the simplest AI implementation with no strategic considerations.
     """
     
-    def __init__(self, color):
+    def __init__(self, color: str):
         """
         Initialize the Random AI.
         
@@ -22,7 +23,7 @@ class AI(BaseAI):
         super().__init__(color)
         self.name = "Random AI (Level 0)"
     
-    def get_move(self, game):
+    def get_move(self, game: Game)-> tuple[tuple[int, int], tuple[int, int]]:
         """
         Select a random valid move.
         
@@ -34,7 +35,8 @@ class AI(BaseAI):
         """
         all_moves = self.get_all_valid_moves(game)
         
-        if not all_moves:
+        if len(all_moves) == 0:
+            # No valid moves available
             return None
             
         return random.choice(all_moves)

@@ -10,6 +10,8 @@ from AI.AI_base import BaseAI
 from Jeux.pieces import PIECE_VALUES
 from Jeux.board import Board
 from Jeux.pieces import Piece
+from Jeux.game import Game
+from Jeux.moves import get_valid_moves
 
 class AI(BaseAI):
     """
@@ -17,17 +19,16 @@ class AI(BaseAI):
     This AI uses advanced heuristics and optimization techniques for stronger play.
     """
     
-    def __init__(self, color):
+    def __init__(self, color: str):
         """
         Initialize the Optimal AI.
         
         Args:
-            color (str): The color of pieces the AI controls ('Red' or 'Black')
+            color (str): The color of pieces the AI controls ('White' or 'Black')
         """
         super().__init__(color)
         self.name = "Optimal AI (Advanced)"
-        self.max_depth = 6  # Look ahead 4 moves
-        self.max_time = 5.0  # Maximum thinking time in seconds
+        self.max_depth = 3  # Look ahead 6 moves
         self.transposition_table = {}  # For caching evaluated positions
         
         # Position value tables to encourage better piece positions
@@ -73,7 +74,7 @@ class AI(BaseAI):
             ]
         }
     
-    def get_move(self, game):
+    def get_move(self, game: Game) -> tuple[tuple[int, int], tuple[int, int]]| None:
         """
         Select a move using the minimax algorithm with alpha-beta pruning.
         
@@ -83,28 +84,14 @@ class AI(BaseAI):
         Returns:
             tuple: ((from_x, from_y), (to_x, to_y)) representing the chosen move
         """
-        from Jeux.moves import get_valid_moves
         
-        self.start_time = time.time()
-        self.transposition_table = {}  # Clear cache for new search
+        # Initialize the transposition table for this move search
+        self.transposition_table = {}  
         
         # Double-check that we're only considering valid moves with actual pieces
-        all_moves = []
-        pieces = game.board.get_all_pieces(self.color)
+        all_moves = self.get_all_valid_moves(game)
         
-        for piece in pieces:
-            # Make sure the piece actually exists at the reported position
-            if game.board.grid[piece.y][piece.x] != piece:
-                continue
-            
-            valid_destinations = get_valid_moves(piece, game.board)
-            for dest_x, dest_y in valid_destinations:
-                # Skip moves where destination is the same as source
-                if dest_x == piece.x and dest_y == piece.y:
-                    continue
-                all_moves.append(((piece.x, piece.y), (dest_x, dest_y)))
-        
-        if not all_moves:
+        if len(all_moves) == 0:
             return None  # No valid moves available
         
         # If there's only one move, return it immediately
@@ -112,14 +99,10 @@ class AI(BaseAI):
             return all_moves[0]
         
         # Iterative deepening - start with shallow search and go deeper
-        best_moves = []  # Initialize with all moves in case we run out of time immediately
+        best_moves = all_moves  # Initialize with all moves as fallback
         best_score = float('-inf')
         
         for current_depth in range(1, self.max_depth + 1):
-            # Break if we're getting close to our time limit
-            if time.time() - self.start_time > self.max_time * 0.8:
-                break
-                
             depth_best_moves = []
             depth_best_score = float('-inf')
             alpha = float('-inf')
@@ -150,7 +133,7 @@ class AI(BaseAI):
                 piece_copy.y = to_y
                 
                 # Use minimax with alpha-beta pruning to evaluate
-                opponent_color = 'Black' if self.color == 'Red' else 'Red'
+                opponent_color = 'Black' if self.color == 'White' else 'White'
                 score = self._alpha_beta(board_copy, current_depth - 1, alpha, beta, False, opponent_color)
                 
                 # Check if this move is better
@@ -161,13 +144,9 @@ class AI(BaseAI):
                     depth_best_moves.append(move)
                 
                 alpha = max(alpha, depth_best_score)
-                
-                # If we're running out of time, break early
-                if time.time() - self.start_time > self.max_time:
-                    break
             
             # Update overall best moves if we completed this depth
-            if depth_best_moves and time.time() - self.start_time <= self.max_time:
+            if depth_best_moves:
                 best_moves = depth_best_moves
                 best_score = depth_best_score
         
@@ -188,7 +167,7 @@ class AI(BaseAI):
             # Fallback to a random move if something went wrong
             return random.choice(all_moves)
     
-    def _order_moves(self, moves, board):
+    def _order_moves(self, moves:list, board: Board) -> list:
         """
         Order moves to improve alpha-beta pruning efficiency.
         Capturing moves and center moves are checked first.
@@ -213,11 +192,7 @@ class AI(BaseAI):
             # Check if it's a capture
             target = board.grid[to_y][to_x]
             if target:
-                value = 10 * PIECE_VALUES.get(target.type, 0)
-                
-                # Extra bonus for capturing the general
-                if target.type == 'General':
-                    value = 10000
+                value = PIECE_VALUES.get(target.type)
             
             # Consider center control
             center_bonus = 0
@@ -230,12 +205,12 @@ class AI(BaseAI):
             move_values.append((value, move))
         
         # Sort moves by value (highest first)
-        move_values.sort(reverse=True)
+        move_values.sort(key=lambda x: x[0], reverse=True)
         
         # Return just the moves
         return [move for _, move in move_values]
     
-    def _alpha_beta(self, board, depth, alpha, beta, is_maximizing, current_color):
+    def _alpha_beta(self, board: Board, depth:int, alpha:float, beta:float, is_maximizing:bool, current_color:str):
         """
         Minimax algorithm with alpha-beta pruning.
         
@@ -250,10 +225,6 @@ class AI(BaseAI):
         Returns:
             float: Score for the current board position
         """
-        # Check time limit
-        if time.time() - self.start_time > self.max_time:
-            return self.evaluate_board(board) if is_maximizing else -self.evaluate_board(board)
-        
         # Create a hash for the current board state (for transposition table)
         board_hash = self._hash_board(board)
         
@@ -277,16 +248,13 @@ class AI(BaseAI):
                 return float('inf')   # AI won
         
         # Get all pieces for the current player
-        from Jeux.moves import get_valid_moves
-        
+       
         all_possible_moves = []
-        for y in range(10):
-            for x in range(9):
-                piece = board.grid[y][x]
-                if piece and piece.color == current_color:
-                    valid_moves = get_valid_moves(piece, board)
-                    for move in valid_moves:
-                        all_possible_moves.append(((piece.x, piece.y), move))
+        pieces = board.get_all_pieces(current_color)
+        for piece in pieces:
+            valid_moves = get_valid_moves(piece, board)
+            for move in valid_moves:
+                all_possible_moves.append(((piece.x, piece.y), move))
         
         # No moves available (stalemate)
         if not all_possible_moves:
@@ -303,7 +271,7 @@ class AI(BaseAI):
                 to_x, to_y = to_pos
                 
                 # Create a deep copy of the board for this move
-                board_copy = self._deep_copy_board(board)
+                board_copy = copy.deepcopy(board)
                 
                 # Move the piece on the copied board
                 piece_copy = board_copy.grid[from_y][from_x]
@@ -316,7 +284,7 @@ class AI(BaseAI):
                     continue  # Skip this move if piece doesn't exist
                 
                 # Recursively evaluate this move
-                next_color = 'Black' if current_color == 'Red' else 'Red'
+                next_color = 'Black' if current_color == 'White' else 'White'
                 score = self._alpha_beta(board_copy, depth - 1, alpha, beta, False, next_color)
                 best_score = max(best_score, score)
                 
@@ -336,7 +304,7 @@ class AI(BaseAI):
                 to_x, to_y = to_pos
                 
                 # Create a deep copy of the board for this move
-                board_copy = self._deep_copy_board(board)
+                board_copy = copy.deepcopy(board)
                 
                 # Move the piece on the copied board
                 piece_copy = board_copy.grid[from_y][from_x]
@@ -349,7 +317,7 @@ class AI(BaseAI):
                     continue  # Skip this move if piece doesn't exist
                 
                 # Recursively evaluate this move
-                next_color = 'Black' if current_color == 'Red' else 'Red'
+                next_color = 'Black' if current_color == 'White' else 'White'
                 score = self._alpha_beta(board_copy, depth - 1, alpha, beta, True, next_color)
                 best_score = min(best_score, score)
                 
@@ -373,7 +341,7 @@ class AI(BaseAI):
         Returns:
             float: A score representing how favorable the position is
         """
-        opponent_color = 'Black' if self.color == 'Red' else 'Red'
+        opponent_color = 'Black' if self.color == 'White' else 'White'
         material_score = 0
         positional_score = 0
         mobility_score = 0
@@ -393,8 +361,8 @@ class AI(BaseAI):
                         # Adjust for perspective (board is flipped for black)
                         if piece.color == 'Black' and piece.color == self.color:
                             pos_y = 9 - y  # Flip for Black's perspective when Black is AI
-                        elif piece.color == 'Red' and piece.color != self.color:
-                            pos_y = 9 - y  # Flip for Red's perspective when Black is AI
+                        elif piece.color == 'White' and piece.color != self.color:
+                            pos_y = 9 - y  # Flip for White's perspective when Black is AI
                         else:
                             pos_y = y
                             
@@ -402,7 +370,6 @@ class AI(BaseAI):
                         positional_score += multiplier * position_value * 0.1  # Scale down positional value
                     
                     # Calculate mobility for this piece
-                    from Jeux.moves import get_valid_moves
                     valid_moves = get_valid_moves(piece, board)
                     mobility = len(valid_moves)
                     
@@ -424,13 +391,13 @@ class AI(BaseAI):
         
         return total_score
     
-    def _is_in_check(self, board, color):
+    def _is_in_check(self, board: Board, color: str) -> bool:
         """
         Check if the given color's general is in check.
         
         Args:
             board: Current board state
-            color: Color to check ('Red' or 'Black')
+            color: Color to check ('White' or 'Black')
             
         Returns:
             bool: True if the general is in check
@@ -450,7 +417,7 @@ class AI(BaseAI):
             return False  # No general found (shouldn't happen in a valid game)
         
         # Check if any opponent piece can capture the general
-        opponent_color = 'Black' if color == 'Red' else 'Red'
+        opponent_color = 'Black' if color == 'White' else 'White'
         for y in range(10):
             for x in range(9):
                 piece = board.grid[y][x]
@@ -462,7 +429,7 @@ class AI(BaseAI):
         
         return False
     
-    def _is_game_over(self, board):
+    def _is_game_over(self, board:Board) -> bool:
         """
         Check if the game is over (general has been captured).
         
@@ -480,14 +447,14 @@ class AI(BaseAI):
             for x in range(9):
                 piece = board.grid[y][x]
                 if piece:
-                    if piece.type == 'General' and piece.color == 'Red':
+                    if piece.type == 'General' and piece.color == 'White':
                         red_general_exists = True
                     elif piece.type == 'General' and piece.color == 'Black':
                         black_general_exists = True
         
         return not (red_general_exists and black_general_exists)
     
-    def _hash_board(self, board):
+    def _hash_board(self, board: Board) -> str:
         """
         Create a simple hash of the current board state for the transposition table.
         

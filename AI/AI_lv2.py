@@ -6,6 +6,7 @@ This AI looks ahead a few moves to make more strategic decisions.
 from AI.AI_base import BaseAI
 import random
 import copy
+from Jeux.game import Game
 from Jeux.moves import get_valid_moves
 
 class AI(BaseAI):
@@ -14,7 +15,7 @@ class AI(BaseAI):
     This AI looks ahead a few moves to make better strategic decisions.
     """
     
-    def __init__(self, color):
+    def __init__(self, color: str):
         """
         Initialize the Intermediate AI.
         
@@ -23,9 +24,9 @@ class AI(BaseAI):
         """
         super().__init__(color)
         self.name = "Intermediate AI (Level 2)"
-        self.search_depth = 2  # Look ahead 2 moves
+        self.search_depth = 2  # Look ahead 5 moves
     
-    def get_move(self, game):
+    def get_move(self, game:Game) -> tuple[tuple[int, int], tuple[int, int]]:
         """
         Use minimax to find the best move looking ahead a few moves.
         
@@ -36,15 +37,9 @@ class AI(BaseAI):
             tuple: ((from_x, from_y), (to_x, to_y)) representing the chosen move
         """
         # Get all valid moves for the current player's pieces
-        all_moves = []
-        pieces = game.board.get_all_pieces(self.color)
+        all_moves = self.get_all_valid_moves(game)
         
-        for piece in pieces:
-            valid_destinations = get_valid_moves(piece, game.board)
-            for dest in valid_destinations:
-                all_moves.append(((piece.x, piece.y), dest))
-        
-        if not all_moves:
+        if len(all_moves) == 0:
             return None  # No valid moves available
         
         best_score = float('-inf')
@@ -75,13 +70,13 @@ class AI(BaseAI):
                 best_moves.append(move)  # Add equally good moves
         
         # Choose randomly from the best moves
-        if best_moves:
+        if len(best_moves) > 0:
             return random.choice(best_moves)
         else:
             # Fallback: if minimax didn't yield good results, choose randomly
             return random.choice(all_moves) if all_moves else None
     
-    def minimax(self, game, depth, is_maximizing):
+    def minimax(self, game: Game, depth: int, is_maximizing: bool) -> float:
         """
         Minimax algorithm implementation.
         
@@ -113,7 +108,7 @@ class AI(BaseAI):
                 all_moves.append(((piece.x, piece.y), dest))
         
         # If no moves are available, this is a terminal state
-        if not all_moves:
+        if len(all_moves) == 0:
             return 0  # Draw
         
         if is_maximizing:

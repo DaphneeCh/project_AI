@@ -5,6 +5,9 @@ specific AI implementations can extend.
 """
 
 from Jeux.moves import get_valid_moves
+from Jeux.pieces import PIECE_VALUES
+from Jeux.game import Game
+from Jeux.board import Board
 
 class BaseAI:
     """
@@ -14,7 +17,7 @@ class BaseAI:
     defines the interface that specific AI implementations should follow.
     """
     
-    def __init__(self, color):
+    def __init__(self, color: str):
         """
         Initialize the AI with a specific color.
         
@@ -24,7 +27,7 @@ class BaseAI:
         self.color = color
         self.name = "Base AI"
     
-    def get_move(self, game):
+    def get_move(self, game: Game):
         """
         Determine the next move for the AI based on the current game state.
         This method should be overridden by specific AI implementations.
@@ -37,7 +40,7 @@ class BaseAI:
         """
         raise NotImplementedError("Specific AI implementations must override get_move")
     
-    def get_all_valid_moves(self, game):
+    def get_all_valid_moves(self, game: Game)-> list[tuple[tuple[int, int], tuple[int, int]]]:
         """
         Get all valid moves for the current player.
         
@@ -57,7 +60,7 @@ class BaseAI:
         
         return all_moves
     
-    def evaluate_board(self, board):
+    def evaluate_board(self, board: Board)-> int:
         """
         Evaluate the current board position from the AI's perspective.
         Higher values are better for the AI.
@@ -68,8 +71,7 @@ class BaseAI:
         Returns:
             int: A score representing how favorable the position is
         """
-        from Jeux.pieces import PIECE_VALUES
-        
+        # Simple evaluation: sum the values of all pieces on the board
         score = 0
         for y in range(10):
             for x in range(9):
