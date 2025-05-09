@@ -17,6 +17,8 @@ sys.path.append(project_dir)
 from Jeux.game import Game
 from Jeux.moves import get_valid_moves
 
+from Jeux.pieces import *
+
 try:
     from AI.AI_lv0 import AI as RandomAI
     from AI.AI_lv1 import AI as BeginnerAI
@@ -26,17 +28,6 @@ try:
 except ImportError:
     AI_AVAILABLE = False
     print("Warning: AI modules not found or incomplete. AI options will be limited.")
-
-# Dictionary of piece symbols and their explanations
-PIECE_SYMBOLS = {
-    "CH": "Chariot (Xe): Moves horizontally or vertically any number of spaces.",
-    "CA": "Cannon (Pháo): Moves like a Chariot but captures by jumping over one piece.",
-    "HO": "Horse (Mã): Move in an 'L' shape, two squares in one direction and one square perpendicular. If there is another piece standing at the intersection adjacent to the vertical or horizontal step, the Horse is blocked and cannot move.",
-    "EL": "Elephant (Tượng): Moves diagonally two spaces, cannot cross the river. If there is another piece standing in the middle of that diagonal line, the Elephant is blocked and cannot move.",
-    "AD": "Advisor (Sĩ): Moves one space diagonally, restricted to the palace.",
-    "GE": "General (Tướng): Moves one space in any direction, restricted to the palace. Two Generals cannot face each other directly on the same line. If they do, there must be a piece from either side blocking their view.",
-    "SO": "Soldier (Binh): Moves one space forward, can move sideways after crossing the river.",
-}
 
 def clear_screen():
     """Clear the console screen"""
@@ -97,9 +88,9 @@ def display_ai_menu():
     else:
         print("(Additional AI levels not available)")
     
-    print("4. Back to Main Menu")
-    
     max_option = 5 if AI_AVAILABLE else 2
+
+    print(f"{max_option-1}. Back to Main Menu")
     
     while True:
         try:
@@ -214,26 +205,21 @@ def play_human_vs_human():
                         print("Position out of bounds. Try again.")
                         continue
                         
-                    piece = game.board.grid[exp_y][exp_x]
+                    piece = game.board.grid[game.board.to_1d(exp_x, exp_y)]  # Fixed access
                     if not piece:
                         print("No piece at the selected position.")
                         continue
                     
                     # Display piece information
                     print(f"\n--- {piece} Information ---")
-                    print(f"Type: {piece.type}")
-                    print(f"Player's Color: {piece.color}")
-                    print(f"Position: ({piece.x}, {piece.y})")
+                    print(f"Type: {PIECE_TYPES_REVERSE[piece[1]]}")
+                    print(f"Player's Color: {'White' if piece[0] == 'W' else 'Black'}")
+                    print(f"Position: ({exp_x}, {exp_y})")
                     
                     # Add piece description from PIECE_SYMBOLS
-                    piece_type_abbr = piece.type[:2].upper()
-                    if piece_type_abbr in PIECE_SYMBOLS:
-                        print(f"Description: {PIECE_SYMBOLS[piece_type_abbr]}")
-                    
-                    # Additional info if available
-                    if hasattr(piece, 'get_description'):
-                        print(f"Additional Information: {piece.get_description()}")
-                    
+                    if piece[1] in PIECE_SYMBOLS:
+                        print(f"Description: {PIECE_SYMBOLS[piece[1]]}")
+
                     continue
                 except ValueError:
                     print("Invalid format for explain command. Use 'explain x,y'")
@@ -247,14 +233,14 @@ def play_human_vs_human():
                 print("Position out of bounds. Try again.")
                 continue
                 
-            piece = game.board.grid[from_y][from_x]
-            if not piece:
+            piece = game.board.grid[game.board.to_1d(from_x, from_y)]
+            if piece == '  ':
                 print("No piece at the selected position. Try again.")
                 continue
                 
             # Show valid moves for the selected piece
-            if piece.color == game.current_player:
-                valid_moves = get_valid_moves(piece, game.board)
+            if (piece[0] == 'W' and game.current_player == 'White') or (piece[0] == 'B' and game.current_player == 'Black'):
+                valid_moves = get_valid_moves(from_x,from_y, game.board)
                 if not valid_moves:
                     print(f"No valid moves for {piece}. Please select another piece.")
                     continue
@@ -354,25 +340,20 @@ def play_human_vs_ai(ai_level, human_color='White'):
                             print("Position out of bounds. Try again.")
                             continue
                             
-                        piece = game.board.grid[exp_y][exp_x]
+                        piece = game.board.grid[game.board.to_1d(exp_x, exp_y)]  # Fixed access
                         if not piece:
                             print("No piece at the selected position.")
                             continue
                         
                         # Display piece information
                         print(f"\n--- {piece} Information ---")
-                        print(f"Type: {piece.type}")
-                        print(f"Player's Color: {piece.color}")
-                        print(f"Position: ({piece.x}, {piece.y})")
+                        print(f"Type: {PIECE_TYPES_REVERSE[piece[1]]}")
+                        print(f"Player's Color: {'White' if piece[0] == 'W' else 'Black'}")
+                        print(f"Position: ({exp_x}, {exp_y})")
                         
                         # Add piece description from PIECE_SYMBOLS
-                        piece_type_abbr = piece.type[:2].upper()
-                        if piece_type_abbr in PIECE_SYMBOLS:
-                            print(f"Description: {PIECE_SYMBOLS[piece_type_abbr]}")
-                        
-                        # Additional info if available
-                        if hasattr(piece, 'get_description'):
-                            print(f"Additional Information: {piece.get_description()}")
+                        if piece[1] in PIECE_SYMBOLS:
+                            print(f"Description: {PIECE_SYMBOLS[piece[1]]}")
                         
                         continue
                     except ValueError:
@@ -387,14 +368,14 @@ def play_human_vs_ai(ai_level, human_color='White'):
                     print("Position out of bounds. Try again.")
                     continue
                     
-                piece = game.board.grid[from_y][from_x]
+                piece = game.board.grid[game.board.to_1d(from_x, from_y)]
                 if not piece:
                     print("No piece at the selected position. Try again.")
                     continue
                     
                 # Show valid moves for the selected piece
-                if piece.color == game.current_player:
-                    valid_moves = get_valid_moves(piece, game.board)
+                if (piece[0] == 'W' and game.current_player == 'White') or (piece[0] == 'B' and game.current_player == 'Black'):
+                    valid_moves = get_valid_moves(from_x,from_y, game.board)
                     if not valid_moves:
                         print(f"No valid moves for {piece}. Please select another piece.")
                         continue
@@ -429,7 +410,7 @@ def play_human_vs_ai(ai_level, human_color='White'):
             print(f"\n{ai_name} is thinking...")
             time.sleep(1)  # Add a small delay to make it seem like the AI is "thinking"
             
-            ai_move = ai.get_move(game)
+            ai_move = ai.get_move(game.board)
             
             if ai_move:
                 from_pos, to_pos = ai_move
@@ -437,7 +418,7 @@ def play_human_vs_ai(ai_level, human_color='White'):
                 to_x, to_y = to_pos
                 
                 # Show what piece the AI is moving
-                piece = game.board.grid[from_y][from_x]
+                piece = game.board.grid[game.board.to_1d(from_x, from_y)]  # Fixed access
                 print(f"AI moves {piece} from ({from_x},{from_y}) to ({to_x},{to_y})")
                 
                 success, message = game.make_move((from_x, from_y), (to_x, to_y))
@@ -447,7 +428,7 @@ def play_human_vs_ai(ai_level, human_color='White'):
             else:
                 print("AI couldn't find a valid move!")
                 game.game_over = True
-                game.winner = human_color
+                print("Draw !")
     
     # Final game state
     if game.game_over:
@@ -507,7 +488,7 @@ def play_ai_vs_ai():
             print("Please enter a valid number.")
     
     move_count = 0
-    max_moves = 200  # Prevent infinite games
+    max_moves = 100  # Prevent infinite games
     
     # Game loop
     while not game.game_over and move_count < max_moves:
@@ -526,7 +507,7 @@ def play_ai_vs_ai():
             print(f"\n{current_name} is thinking...")
         
         # Get AI's move
-        ai_move = current_ai.get_move(game)
+        ai_move = current_ai.get_move(game.board)
         
         if ai_move:
             from_pos, to_pos = ai_move
@@ -534,7 +515,7 @@ def play_ai_vs_ai():
             to_x, to_y = to_pos
             
             # Get the piece being moved
-            piece = game.board.grid[from_y][from_x]
+            piece = game.board.grid[game.board.to_1d(from_x, from_y)]  # Fixed access
             
             # Make the move
             success, message = game.make_move((from_x, from_y), (to_x, to_y))
@@ -556,7 +537,7 @@ def play_ai_vs_ai():
         else:
             print(f"{current_name} couldn't find a valid move!")
             game.game_over = True
-            game.winner = 'Black' if game.current_player == 'White' else 'White'
+            print("Draw !")
     
     # Final game state
     clear_screen()
@@ -567,9 +548,12 @@ def play_ai_vs_ai():
     if move_count >= max_moves:
         print(f"\nGame ended after {max_moves} moves (draw)")
     else:
-        print(f"\nWinner: {game.winner}")
-        winning_ai = white_ai_name if game.winner == 'White' else black_ai_name
-        print(f"{winning_ai} wins!")
+        if (isinstance(game.winner, str) and game.winner.startswith("Draw")) or game.winner is None:
+            print(f"\n{game.winner}")
+        else:
+            print(f"\nWinner: {game.winner}")
+            winning_ai = white_ai_name if game.winner == 'White' else black_ai_name
+            print(f"{winning_ai} wins!")
     
     # Game statistics
     print(f"\nTotal moves: {move_count}")
@@ -583,12 +567,32 @@ def run_ai_tournament():
     clear_screen()
     display_title()
     print("\nAI TOURNAMENT MODE")
-    print("\nThis will run 50 games for each AI pair combination and save results to a CSV file.")
     
-    # Confirm with user
-    confirm = input("\nStart tournament? This may take a while. (y/n): ")
-    if confirm.lower() != 'y':
+    # Tournament mode selection
+    print("\nSelect tournament mode:")
+    print("1. Full tournament (all AI combinations)")
+    print("2. Single matchup (specific AI vs AI)")
+    print("3. Back to main menu")
+    
+    mode_choice = 0
+    while mode_choice not in [1, 2, 3]:
+        try:
+            mode_choice = int(input("\nEnter your choice (1-3): "))
+        except ValueError:
+            print("Please enter a valid number.")
+    
+    if mode_choice == 3:
         return
+    
+    # Number of games to run
+    try:
+        num_games = int(input("\nEnter number of games to run (10-500): "))
+        num_games = max(10, min(500, num_games))  # Limit between 10 and 500
+    except ValueError:
+        num_games = 50
+        print("Invalid input. Using default of 50 games.")
+    
+    print(f"\nRunning {num_games} games per matchup.")
     
     # Available AI levels
     ai_levels = [0]  # Always include Random AI
@@ -597,9 +601,6 @@ def run_ai_tournament():
     if AI_AVAILABLE:
         ai_levels.extend([1, 2, 3])
         ai_names.extend(["Beginner AI (Level 1)", "Intermediate AI (Level 2)", "Advanced AI (Level 3)"])
-    
-    # Number of games to run for each pair
-    num_games = 50
     
     # Prepare results file
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -611,68 +612,101 @@ def run_ai_tournament():
         csvwriter.writerow(['White AI', 'Black AI', 'Total Games', 'White Wins', 'Black Wins', 
                            'Draws', 'White Win %', 'Black Win %', 'Draw %', 'Avg Moves'])
         
-        # Run games for each pair of AIs
-        for white_idx, white_level in enumerate(ai_levels):
-            for black_idx, black_level in enumerate(ai_levels):
-                print(f"\nRunning {num_games} games: {ai_names[white_idx]} (White) vs {ai_names[black_idx]} (Black)")
+        if mode_choice == 1:  # Full tournament mode
+            print("\nRunning full tournament with all AI combinations...")
+            
+            # Run games for each pair of AIs
+            for white_idx, white_level in enumerate(ai_levels):
+                for black_idx, black_level in enumerate(ai_levels):
+                    run_matchup(white_level, black_level, ai_names[white_idx], ai_names[black_idx], 
+                               num_games, csvwriter)
+        
+        else:  # Single matchup mode
+            # Select first AI (White)
+            white_ai_level, white_ai_name = select_ai("WHITE AI")
+            if white_ai_level is None:
+                return  # User went back to main menu
+            
+            # Select second AI (Black)
+            black_ai_level, black_ai_name = select_ai("BLACK AI")
+            if black_ai_level is None:
+                return  # User went back to main menu
                 
-                # Statistics
-                white_wins = 0
-                black_wins = 0
-                draws = 0
-                total_moves = 0
-                
-                # Progress bar
-                for game_num in range(num_games):
-                    print(f"Game {game_num+1}/{num_games}...", end='\r')
-                    
-                    # Create a new game
-                    game = Game()
-                    
-                    # Create AI players
-                    white_ai = create_ai('White', white_level)
-                    black_ai = create_ai('Black', black_level)
-                    
-                    # Run the game
-                    move_count, winner = run_ai_game(game, white_ai, black_ai)
-                    
-                    # Update statistics
-                    if winner == 'White':
-                        white_wins += 1
-                    elif winner == 'Black':
-                        black_wins += 1
-                    else:
-                        draws += 1
-                    
-                    total_moves += move_count
-                
-                # Calculate final statistics
-                avg_moves = total_moves / num_games
-                White_win_pct = (white_wins / num_games) * 100
-                black_win_pct = (black_wins / num_games) * 100
-                draw_pct = (draws / num_games) * 100
-                
-                # Write results for this pair
-                csvwriter.writerow([
-                    ai_names[white_idx], 
-                    ai_names[black_idx], 
-                    num_games, 
-                    white_wins, 
-                    black_wins, 
-                    draws,
-                    f"{White_win_pct:.1f}%",
-                    f"{black_win_pct:.1f}%", 
-                    f"{draw_pct:.1f}%",
-                    f"{avg_moves:.1f}"
-                ])
-                
-                # Display results
-                print(" " * 30, end='\r')  # Clear progress line
-                print(f"Results: White wins: {white_wins}, Black wins: {black_wins}, Draws: {draws}")
-                print(f"Average moves per game: {avg_moves:.1f}")
+            # Run the selected matchup
+            run_matchup(white_ai_level, black_ai_level, white_ai_name, black_ai_name, 
+                       num_games, csvwriter)
     
     print(f"\nTournament complete! Results saved to {filename}")
     input("\nPress Enter to return to the Main Menu...")
+
+def run_matchup(white_level, black_level, white_name, black_name, num_games, csvwriter):
+    """
+    Run a tournament matchup between two specific AIs and record results
+    
+    Args:
+        white_level (int): AI level for White
+        black_level (int): AI level for Black
+        white_name (str): Name of White AI
+        black_name (str): Name of Black AI
+        num_games (int): Number of games to run
+        csvwriter: CSV writer object for recording results
+    """
+    print(f"\nRunning {num_games} games: {white_name} (White) vs {black_name} (Black)")
+    
+    # Statistics
+    white_wins = 0
+    black_wins = 0
+    draws = 0
+    total_moves = 0
+    
+    # Progress bar
+    for game_num in range(num_games):
+        print(f"Game {game_num+1}/{num_games}...", end='\r')
+        
+        # Create a new game
+        game = Game()
+        
+        # Create AI players
+        white_ai = create_ai('White', white_level)
+        black_ai = create_ai('Black', black_level)
+        
+        # Run the game
+        move_count, winner = run_ai_game(game, white_ai, black_ai)
+        
+        # Update statistics
+        if winner == 'White':
+            white_wins += 1
+        elif winner == 'Black':
+            black_wins += 1
+        else:
+            draws += 1
+        
+        total_moves += move_count
+    
+    # Calculate final statistics
+    avg_moves = total_moves / num_games
+    white_win_pct = (white_wins / num_games) * 100
+    black_win_pct = (black_wins / num_games) * 100
+    draw_pct = (draws / num_games) * 100
+    
+    # Write results for this pair
+    csvwriter.writerow([
+        white_name, 
+        black_name, 
+        num_games, 
+        white_wins, 
+        black_wins, 
+        draws,
+        f"{white_win_pct:.1f}%",
+        f"{black_win_pct:.1f}%", 
+        f"{draw_pct:.1f}%",
+        f"{avg_moves:.1f}"
+    ])
+    
+    # Display results
+    print(" " * 30, end='\r')  # Clear progress line
+    print(f"Results: White wins: {white_wins}, Black wins: {black_wins}, Draws: {draws}")
+    print(f"Average moves per game: {avg_moves:.1f}")
 
 def create_ai(color, level):
     """
@@ -696,7 +730,7 @@ def create_ai(color, level):
     else:
         return RandomAI(color)  # Default to Random AI
 
-def run_ai_game(game, white_ai, black_ai, max_moves=400):
+def run_ai_game(game, white_ai, black_ai, max_moves=100):
     """
     Run a single game between two AIs
     
@@ -716,7 +750,7 @@ def run_ai_game(game, white_ai, black_ai, max_moves=400):
         current_ai = white_ai if game.current_player == 'White' else black_ai
         
         # Get and make move
-        ai_move = current_ai.get_move(game)
+        ai_move = current_ai.get_move(game.board)
         
         if ai_move:
             from_pos, to_pos = ai_move
@@ -731,10 +765,14 @@ def run_ai_game(game, white_ai, black_ai, max_moves=400):
         else:
             # AI has no valid moves
             game.game_over = True
-            game.winner = 'Black' if game.current_player == 'White' else 'White'
+            game.winner = None  # Draw condition
     
     # Check for draw due to move limit
     if move_count >= max_moves and not game.game_over:
+        return move_count, 'Draw'
+    
+    # Handle threefold repetition draw
+    if (isinstance(game.winner, str) and game.winner.startswith("Draw")) or game.winner is None:
         return move_count, 'Draw'
     
     return move_count, game.winner
@@ -766,7 +804,7 @@ def main():
         elif choice == 3:  # AI vs. AI
             play_ai_vs_ai()
             
-        elif choice == 4:  # AI Tournament - NEW OPTION
+        elif choice == 4:  # AI Tournament
             run_ai_tournament()
             
         elif choice == 5:  # Instructions

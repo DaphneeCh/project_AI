@@ -6,7 +6,6 @@ specific AI implementations can extend.
 
 from Jeux.moves import get_valid_moves
 from Jeux.pieces import PIECE_VALUES
-from Jeux.game import Game
 from Jeux.board import Board
 
 class BaseAI:
@@ -22,12 +21,12 @@ class BaseAI:
         Initialize the AI with a specific color.
         
         Args:
-            color (str): The color of pieces the AI controls ('Red' or 'Black')
+            color (str): The color of pieces the AI controls ('White' or 'Black')
         """
-        self.color = color
+        self.color = color[0].upper()  # Ensure color is uppercase
         self.name = "Base AI"
     
-    def get_move(self, game: Game):
+    def get_move(self, board: Board) -> tuple[tuple[int, int], tuple[int, int]]:
         """
         Determine the next move for the AI based on the current game state.
         This method should be overridden by specific AI implementations.
@@ -40,7 +39,7 @@ class BaseAI:
         """
         raise NotImplementedError("Specific AI implementations must override get_move")
     
-    def get_all_valid_moves(self, game: Game)-> list[tuple[tuple[int, int], tuple[int, int]]]:
+    def get_all_valid_moves(self, color:str, board: Board)-> list[tuple[tuple[int, int], tuple[int, int]]]:
         """
         Get all valid moves for the current player.
         
@@ -51,12 +50,15 @@ class BaseAI:
             list: A list of tuples ((from_x, from_y), (to_x, to_y)) for all valid moves
         """
         all_moves = []
-        pieces = game.board.get_all_pieces(self.color)
-        
-        for piece in pieces:
-            valid_moves = get_valid_moves(piece, game.board)
-            for move in valid_moves:
-                all_moves.append(((piece.x, piece.y), move))
+    
+        for i in range(90):
+            piece = board.grid[i]
+            if piece != '  ' and piece[0] == color:
+                # Get all valid moves for this piece
+                piece_x, piece_y = board.to_2d(i)
+                valid_moves = get_valid_moves(piece_x,piece_y, board)
+                for move in valid_moves:
+                    all_moves.append(((piece_x, piece_y), move))
         
         return all_moves
     
@@ -73,12 +75,11 @@ class BaseAI:
         """
         # Simple evaluation: sum the values of all pieces on the board
         score = 0
-        for y in range(10):
-            for x in range(9):
-                piece = board.grid[y][x]
-                if piece:
-                    # Add score for own pieces, subtract for opponent's
-                    multiplier = 1 if piece.color == self.color else -1
-                    score += multiplier * PIECE_VALUES.get(piece.type, 0)
+        for i in range(90):
+            piece = board.grid[i]
+            if piece != '  ':
+                # Add score for own pieces, subtract for opponent's
+                multiplier = 1 if piece[0] == self.color else -1
+                score += multiplier * PIECE_VALUES[piece[1]]
         
         return score

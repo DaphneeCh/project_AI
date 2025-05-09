@@ -4,8 +4,6 @@ This module contains the Board class which manages the game grid, piece placemen
 movement, and board state visualization.
 """
 
-from Jeux.pieces import Piece
-
 class Board:
     """
     Represents the game board with a 9x10 grid.
@@ -17,7 +15,12 @@ class Board:
         grid (list): A 2D list representing the 9x10 board with pieces or None
     """
     def __init__(self):
-        self.grid = [[None for _ in range(9)] for _ in range(10)]
+        # Initialize a 1D list representing the 9x10 board (90 positions)
+        self.grid = ['  '] * 90
+        
+        # Helper methods to convert between 1D and 2D coordinates
+        self.to_1d = lambda x, y: y * 9 + x
+        self.to_2d = lambda i: (i % 9, i // 9)
         self.place_initial_pieces()
 
     def place_initial_pieces(self):
@@ -26,84 +29,94 @@ class Board:
         traditional Vietnamese Chess rules.
         """
         # Place generals
-        self.grid[0][4] = Piece('General', 'Black', 4, 0)
-        self.grid[9][4] = Piece('General', 'White', 4, 9)
+        self.grid[self.to_1d(4, 0)] = 'BG'
+        self.grid[self.to_1d(4, 9)] = 'WG'
 
         # Place advisors
-        self.grid[0][3] = Piece('Advisor', 'Black', 3, 0)
-        self.grid[0][5] = Piece('Advisor', 'Black', 5, 0)
-        self.grid[9][3] = Piece('Advisor', 'White', 3, 9)
-        self.grid[9][5] = Piece('Advisor', 'White', 5, 9)
-
+        self.grid[self.to_1d(3, 0)] = 'BA'
+        self.grid[self.to_1d(5, 0)] = 'BA'
+        self.grid[self.to_1d(3, 9)] = 'WA'
+        self.grid[self.to_1d(5, 9)] = 'WA'
+        
         # Place elephants
-        self.grid[0][2] = Piece('Elephant', 'Black', 2, 0)
-        self.grid[0][6] = Piece('Elephant', 'Black', 6, 0)
-        self.grid[9][2] = Piece('Elephant', 'White', 2, 9)
-        self.grid[9][6] = Piece('Elephant', 'White', 6, 9)
+        self.grid[self.to_1d(2, 0)] = 'BE'
+        self.grid[self.to_1d(6, 0)] = 'BE'
+        self.grid[self.to_1d(2, 9)] = 'WE'
+        self.grid[self.to_1d(6, 9)] = 'WE'
 
         # Place horses
-        self.grid[0][1] = Piece('Horse', 'Black', 1, 0)
-        self.grid[0][7] = Piece('Horse', 'Black', 7, 0)
-        self.grid[9][1] = Piece('Horse', 'White', 1, 9)
-        self.grid[9][7] = Piece('Horse', 'White', 7, 9)
-
+        self.grid[self.to_1d(1, 0)] = 'BH'
+        self.grid[self.to_1d(7, 0)] = 'BH'
+        self.grid[self.to_1d(1, 9)] = 'WH'
+        self.grid[self.to_1d(7, 9)] = 'WH'
+        
         # Place chariots
-        self.grid[0][0] = Piece('Chariot', 'Black', 0, 0)
-        self.grid[0][8] = Piece('Chariot', 'Black', 8, 0)
-        self.grid[9][0] = Piece('Chariot', 'White', 0, 9)
-        self.grid[9][8] = Piece('Chariot', 'White', 8, 9)
+        self.grid[self.to_1d(0, 0)] = 'BR'
+        self.grid[self.to_1d(8, 0)] = 'BR'
+        self.grid[self.to_1d(0, 9)] = 'WR'
+        self.grid[self.to_1d(8, 9)] = 'WR'
 
         # Place cannons
-        self.grid[2][1] = Piece('Cannon', 'Black', 1, 2)
-        self.grid[2][7] = Piece('Cannon', 'Black', 7, 2)
-        self.grid[7][1] = Piece('Cannon', 'White', 1, 7)
-        self.grid[7][7] = Piece('Cannon', 'White', 7, 7)
+        self.grid[self.to_1d(1, 2)] = 'BC'
+        self.grid[self.to_1d(7, 2)] = 'BC'
+        self.grid[self.to_1d(1, 7)] = 'WC'
+        self.grid[self.to_1d(7, 7)] = 'WC'
 
         # Place soldiers
         for i in range(0, 9, 2):
-            self.grid[3][i] = Piece('Soldier', 'Black', i, 3)
-            self.grid[6][i] = Piece('Soldier', 'White', i, 6)
+            self.grid[self.to_1d(i, 3)] = 'BS'
+            self.grid[self.to_1d(i, 6)] = 'WS'
 
-        # Update coordinates for all pieces
-        for y in range(10):
-            for x in range(9):
-                if self.grid[y][x]:
-                    self.grid[y][x].x = x
-                    self.grid[y][x].y = y
-
-    def move_piece(self, piece: Piece, new_x: int, new_y: int):
+    def move_piece(self, curr_x: int, curr_y: int, new_x: int, new_y: int):
         """
         Moves a piece to a new position on the board.
         
         Args:
-            piece (Piece): The piece to move
+            curr_x (int): The current x-coordinate of the piece
+            curr_y (int): The current y-coordinate of the piece
             new_x (int): The destination x-coordinate
             new_y (int): The destination y-coordinate
             
         Returns:
-            Piece or None: The captuWhite piece if any, otherwise None
-        """
-        self.grid[piece.y][piece.x] = None
-        captuWhite = self.grid[new_y][new_x]
-        piece.x, piece.y = new_x, new_y
-        self.grid[new_y][new_x] = piece
-        return captuWhite
+            capture (str or None): The captured piece, if any
 
-    def get_all_pieces(self, color: str)-> list:
-        return [piece for row in self.grid for piece in row if piece and piece.color == color]
+        """
+        capture = None
+        curr_idx = self.to_1d(curr_x, curr_y)
+        new_idx = self.to_1d(new_x, new_y)
+        
+        if self.grid[curr_idx] == '  ':  # Fixed comparison
+            raise ValueError("No piece at the current position")
+        if not self.is_in_bounds(new_x, new_y):
+            raise ValueError("New position out of bounds")
+            
+        current_piece = self.grid[curr_idx]
+        self.grid[curr_idx] = '  '
+        capture = self.grid[new_idx]
+        self.grid[new_idx] = current_piece
+        
+        return capture
+
+    # def get_all_pieces(self, color: str)-> list:
+    #     return [piece for row in self.grid for piece in row if piece and piece.color == color]
 
     def display(self):
+        """
+        Displays the current state of the board in a formatted grid.
+        """
         # Center column headers above each cell
         print("  ", end="")
         for i in range(9):
             print(f"  {i}  ", end="")
         print()
         print("  +----+----+----+----+----+----+----+----+----+")
-        for y, row in enumerate(self.grid):
+        
+        for y in range(10):
             print(f"{y} |", end="")
-            for piece in row:
+            for x in range(9):
+                piece = self.grid[self.to_1d(x, y)]
                 piece_str = str(piece) if piece else "  "
-                # Center the piece string in a 5-character space
+                # Center the piece string in a 4-character space
                 print(f"{piece_str:^4}", end="|")
             print()
             print("  +----+----+----+----+----+----+----+----+----+")
@@ -114,31 +127,52 @@ class Board:
 
     def is_general_facing_general(self)-> bool:
         # Find both generals
-        White_general = None
+        white_general = None
         black_general = None
         
-        for row in self.grid:
-            for piece in row:
-                if piece and piece.type == 'General':
-                    if piece.color == 'White':
-                        White_general = piece
-                    else:
-                        black_general = piece
+        for i in range(90):
+            piece = self.grid[i]
+            if piece == 'WG':
+                white_general = self.to_2d(i)
+            elif piece == 'BG':
+                black_general = self.to_2d(i)
         
-        if not White_general or not black_general:
+        if not white_general or not black_general:
             return False
             
         # Check if they are in the same column
-        if White_general.x != black_general.x:
+        if white_general[0] != black_general[0]:
             return False
-            
+        
+        x = white_general[0]
         # Check if there are any pieces between them
-        min_y = min(White_general.y, black_general.y)
-        max_y = max(White_general.y, black_general.y)
+        min_y = min(white_general[1], black_general[1])  # Fixed tuple access
+        max_y = max(white_general[1], black_general[1])  # Fixed tuple access
         
         for y in range(min_y + 1, max_y):
-            if self.grid[y][White_general.x] is not None:
+            if self.grid[self.to_1d(x, y)] != '  ':  # Fixed comparison
                 # There is a piece blocking the line of sight
                 return False
                 
         return True
+    
+    def _hash_board(self) -> str:
+        """
+        Create a simple hash of the current board state for the transposition table.
+        
+        Args:
+            board: Current board state
+            
+        Returns:
+            str: A hash string representing the board state
+        """
+        return "|".join(self.grid)
+    
+    def to_string(self) -> str:
+        """
+        Convert the board to a string representation.
+        
+        Returns:
+            str: A string representation of the board
+        """
+        return self._hash_board()

@@ -5,7 +5,8 @@ This AI uses a simple greedy approach to select moves that capture the highest-v
 
 from AI.AI_base import BaseAI
 import random
-from Jeux.game import Game
+from Jeux.board import Board
+from Jeux.pieces import PIECE_VALUES
 
 class AI(BaseAI):
     """
@@ -23,7 +24,7 @@ class AI(BaseAI):
         super().__init__(color)
         self.name = "Beginner AI (Level 1)"
     
-    def get_move(self, game: Game)-> tuple[tuple[int, int], tuple[int, int]]:
+    def get_move(self, board: Board)-> tuple[tuple[int, int], tuple[int, int]]:
         """
         Select a move prioritizing captures of high-value pieces.
         
@@ -33,7 +34,7 @@ class AI(BaseAI):
         Returns:
             tuple: ((from_x, from_y), (to_x, to_y)) representing the chosen move
         """
-        all_moves = self.get_all_valid_moves(game)
+        all_moves = self.get_all_valid_moves(self.color,board)
         
         if len(all_moves) == 0:
             return None  # No valid moves available
@@ -48,13 +49,13 @@ class AI(BaseAI):
             to_x, to_y = to_pos
             
             # Check if we're capturing a piece
-            target_piece = game.board.grid[to_y][to_x]
+            target_piece = board.grid[board.to_1d(to_x, to_y)]
             
-            if target_piece:
-                # Higher score for capturing higher-value pieces
-                from Jeux.pieces import PIECE_VALUES
-                capture_value = PIECE_VALUES.get(target_piece.type, 0)
-                valued_moves.append((move, capture_value))
+            if target_piece != '  ':
+                if target_piece[0] != self.color:
+                    # Higher score for capturing higher-value pieces
+                    capture_value = PIECE_VALUES[target_piece[1]]  # Get the value of the captured piece
+                    valued_moves.append((move, capture_value))
             else:
                 # No capture
                 valued_moves.append((move, 0))
