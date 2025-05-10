@@ -119,4 +119,4 @@ Pour contribuer:
 
 ## Auteurs
 
-- [Daphnee] - Développement initial
+- Daphnee - Développement initial
