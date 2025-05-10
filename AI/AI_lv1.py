@@ -1,6 +1,6 @@
 """
-AI_lv1.py - Implements a beginner-level AI that prioritizes capturing opponent pieces
-This AI uses a simple greedy approach to select moves that capture the highest-value pieces.
+AI_lv1.py - Implémente une IA de niveau débutant qui priorise la capture des pièces adverses
+Cette IA utilise une approche simple et gourmande pour sélectionner les mouvements qui capturent les pièces de la plus haute valeur.
 """
 
 from AI.AI_base import BaseAI
@@ -10,62 +10,62 @@ from Jeux.pieces import PIECE_VALUES
 
 class AI(BaseAI):
     """
-    Level 1 AI - Uses a simple greedy strategy.
-    This AI prioritizes capturing opponent pieces, especially high-value ones.
+    IA de niveau 1 - Utilise une stratégie simple et gourmande.
+    Cette IA priorise la capture des pièces adverses, en particulier celles de haute valeur.
     """
     
     def __init__(self, color: str):
         """
-        Initialize the Beginner AI.
+        Initialiser l'IA Débutant.
         
         Args:
-            color (str): The color of pieces the AI controls ('Red' or 'Black')
+            color (str): La couleur des pièces contrôlées par l'IA ('White' ou 'Black')
         """
         super().__init__(color)
         self.name = "Beginner AI (Level 1)"
     
     def get_move(self, board: Board)-> tuple[tuple[int, int], tuple[int, int]]:
         """
-        Select a move prioritizing captures of high-value pieces.
+        Sélectionne un mouvement en priorisant la capture des pièces de haute valeur.
         
         Args:
-            game: The current game state
+            board: L'état actuel du plateau de jeu
             
         Returns:
-            tuple: ((from_x, from_y), (to_x, to_y)) representing the chosen move
+            tuple: ((from_x, from_y), (to_x, to_y)) représentant le mouvement choisi
         """
         all_moves = self.get_all_valid_moves(self.color,board)
         
         if len(all_moves) == 0:
-            return None  # No valid moves available
+            return None  # Aucun mouvement valide disponible
         
-        # Calculate the value of each move
+        # Calculer la valeur de chaque mouvement
         valued_moves = []
         for move in all_moves:
-            # move is a tuple of ((from_x, from_y), (to_x, to_y))
+            # move est un tuple de ((from_x, from_y), (to_x, to_y))
             from_pos, to_pos = move
-            # from_pos and to_pos are tuples (x, y)
+            # from_pos et to_pos sont des tuples (x, y)
             from_x, from_y = from_pos
             to_x, to_y = to_pos
             
-            # Check if we're capturing a piece
+            # Vérifier si on capture une pièce
             target_piece = board.grid[board.to_1d(to_x, to_y)]
             
             if target_piece != '  ':
                 if target_piece[0] != self.color:
-                    # Higher score for capturing higher-value pieces
-                    capture_value = PIECE_VALUES[target_piece[1]]  # Get the value of the captured piece
+                    # Plus grande valeur pour la capture de pièces de haute valeur
+                    capture_value = PIECE_VALUES[target_piece[1]]  # Obtenir la valeur de la pièce capturée
                     valued_moves.append((move, capture_value))
             else:
-                # No capture
+                # Pas de capture
                 valued_moves.append((move, 0))
         
-        # Sort moves by value (highest first)
+        # Trier les mouvements par valeur (du plus élevé au plus bas)
         valued_moves.sort(key=lambda x: x[1], reverse=True)
         
-        # If there are captures available, select the highest-value one
+        # S'il y a des captures disponibles, sélectionner celle de la plus haute valeur
         if valued_moves[0][1] > 0:
             return valued_moves[0][0]
         
-        # Otherwise, make a random move
+        # Sinon, faire un mouvement aléatoire
         return random.choice(all_moves)

@@ -1,7 +1,7 @@
 """
-AI_base.py - Base class for AI implementations in Vietnamese Chess
-This module defines the base AI class with common functionality that
-specific AI implementations can extend.
+AI_base.py - Classe de base pour les implémentations d'IA dans les Échecs Vietnamiens
+Ce module définit la classe IA de base avec des fonctionnalités communes que
+les implémentations spécifiques d'IA peuvent étendre.
 """
 
 from Jeux.moves import get_valid_moves
@@ -10,51 +10,51 @@ from Jeux.board import Board
 
 class BaseAI:
     """
-    Base class for AI implementations.
+    Classe de base pour les implémentations d'IA.
     
-    This class provides common functionality for all AI levels and
-    defines the interface that specific AI implementations should follow.
+    Cette classe fournit des fonctionnalités communes pour tous les niveaux d'IA et
+    définit l'interface que les implémentations spécifiques d'IA devraient suivre.
     """
     
     def __init__(self, color: str):
         """
-        Initialize the AI with a specific color.
+        Initialise l'IA avec une couleur spécifique.
         
         Args:
-            color (str): The color of pieces the AI controls ('White' or 'Black')
+            color (str): La couleur des pièces que l'IA contrôle ('White' ou 'Black')
         """
         self.color = color[0].upper()  # Ensure color is uppercase
         self.name = "Base AI"
     
     def get_move(self, board: Board) -> tuple[tuple[int, int], tuple[int, int]]:
         """
-        Determine the next move for the AI based on the current game state.
-        This method should be overridden by specific AI implementations.
+        Détermine le prochain mouvement de l'IA en fonction de l'état actuel du jeu.
+        Cette méthode doit être redéfinie par des implémentations spécifiques d'IA.
         
         Args:
-            game: The current game state
+            game: L'état actuel du jeu
             
         Returns:
-            tuple: ((from_x, from_y), (to_x, to_y)) representing the move
+            tuple: ((from_x, from_y), (to_x, to_y)) représentant le mouvement
         """
         raise NotImplementedError("Specific AI implementations must override get_move")
     
     def get_all_valid_moves(self, color:str, board: Board)-> list[tuple[tuple[int, int], tuple[int, int]]]:
         """
-        Get all valid moves for the current player.
+        Obtient tous les mouvements valides pour le joueur actuel.
         
         Args:
-            game: The current game state
+            game: L'état actuel du jeu
             
         Returns:
-            list: A list of tuples ((from_x, from_y), (to_x, to_y)) for all valid moves
+            list: Une liste de tuples ((from_x, from_y), (to_x, to_y)) pour tous les mouvements valides
         """
         all_moves = []
     
         for i in range(90):
             piece = board.grid[i]
             if piece != '  ' and piece[0] == color:
-                # Get all valid moves for this piece
+                # Obtenir tous les mouvements valides pour cette pièce
                 piece_x, piece_y = board.to_2d(i)
                 valid_moves = get_valid_moves(piece_x,piece_y, board)
                 for move in valid_moves:
@@ -64,21 +64,21 @@ class BaseAI:
     
     def evaluate_board(self, board: Board)-> int:
         """
-        Evaluate the current board position from the AI's perspective.
-        Higher values are better for the AI.
+        Évalue la position actuelle du plateau du point de vue de l'IA.
+        Des valeurs plus élevées sont meilleures pour l'IA.
         
         Args:
-            board: The game board to evaluate
+            board: Le plateau de jeu à évaluer
             
         Returns:
-            int: A score representing how favorable the position is
+            int: Un score représentant à quel point la position est favorable
         """
-        # Simple evaluation: sum the values of all pieces on the board
+        # Évaluation simple: somme des valeurs de toutes les pièces sur le plateau
         score = 0
         for i in range(90):
             piece = board.grid[i]
             if piece != '  ':
-                # Add score for own pieces, subtract for opponent's
+                # Ajouter des points pour ses propres pièces, soustraire pour celles de l'adversaire
                 multiplier = 1 if piece[0] == self.color else -1
                 score += multiplier * PIECE_VALUES[piece[1]]
         

@@ -1,7 +1,7 @@
 """
-game.py - Manages the game state for Vietnamese Chess (Cờ Tướng)
-This module contains the Game class which handles turn management, move validation,
-win conditions, and game state tracking.
+game.py - Gère l'état du jeu pour les Échecs Vietnamiens (Cờ Tướng)
+Ce module contient la classe Game qui gère les tours de jeu, la validation des mouvements,
+les conditions de victoire et le suivi de l'état du jeu.
 """
 
 from Jeux.board import Board
@@ -9,15 +9,15 @@ from Jeux.moves import get_valid_moves
 
 class Game:
     """
-    Manages the overall game state and rules.
+    Gère l'état global du jeu et ses règles.
     
-    Attributes:
-        board (Board): The game board
-        current_player (str): The current player ('White' or 'Black')
-        game_over (bool): Whether the game has ended
-        winner (str or None): The winner of the game, if any
-        captured_pieces (dict): Pieces captured by each player
-        board_states (dict): Record of board positions for detecting repetition
+    Attributs:
+        board (Board): Le plateau de jeu
+        current_player (str): Le joueur actuel ('White' pour Blanc ou 'Black' pour Noir)
+        game_over (bool): Indique si le jeu est terminé
+        winner (str ou None): Le vainqueur du jeu, s'il y en a un
+        captured_pieces (dict): Pièces capturées par chaque joueur
+        board_states (dict): Enregistrement des positions du plateau pour détecter les répétitions
     """
     def __init__(self):
         self.board = Board()
@@ -25,25 +25,25 @@ class Game:
         self.game_over = False
         self.winner = None
         self.captured_pieces = {'White': [], 'Black': []}
-        self.board_states = {}  # Track board positions
-        self.update_board_state()  # Track initial state
+        self.board_states = {}  # Dictionnaire pour stocker les états du plateau (clé: état, valeur: occurrences)
+        self.update_board_state() 
 
     def get_board_state_key(self):
         """
-        Creates a hashable representation of the current board state.
-        Returns a string that represents the board position and whose turn it is.
+        Crée une représentation hachée de l'état actuel du plateau.
+        Retourne une chaîne de caractères qui représente la position du plateau et à qui c'est le tour.
         """
-        # Create a representation of the current board state
+        # Convertit le plateau en une chaîne de caractères
         board_str = self.board.to_string()
         
-        # Include current player in the state
+        # Ajoute le joueur actuel à la chaîne
         state = board_str + "-" + self.current_player
         return state
         
     def update_board_state(self):
         """
-        Update the board state history.
-        Converts the current board position to a string representation and counts occurrences.
+        Met à jour l'historique de l'état du plateau.
+        Convertit la position actuelle du plateau en une représentation sous forme de chaîne de caractères et compte les occurrences.
         """
         state = self.get_board_state_key()
         if state in self.board_states:
@@ -51,28 +51,28 @@ class Game:
         else:
             self.board_states[state] = 1
             
-        # Check for threefold repetition
-        if self.board_states[state] > 3:
+        # Vérifie si l'état du plateau a été répété trois fois ce qui entraîne une partie nulle
+        if self.board_states[state] >= 3:
             self.game_over = True
             self.winner = "Draw (Threefold Repetition)"
 
     def switch_player(self):
         """
-        Switches the current player from White to Black or vice versa.
+        Change le joueur actuel de Blanc à Noir ou vice versa.
         """
         self.current_player = 'Black' if self.current_player == 'White' else 'White'
 
     def make_move(self, from_pos: tuple[int,int], to_pos: tuple[int,int]) -> tuple[bool, str]:
         """
-        Attempts to move a piece from one position to another.
+        Tente de déplacer une pièce d'une position à une autre.
         
         Args:
-            from_pos (tuple): The starting position (x, y)
-            to_pos (tuple): The destination position (x, y)
+            from_pos (tuple): La position de départ (x, y)
+            to_pos (tuple): La position de destination (x, y)
             
         Returns:
-            tuple: (success, message) where success is a boolean and
-                  message is a string explaining the result
+            tuple: (succès, message) où succès est un booléen et
+                  message est une chaîne de caractères expliquant le résultat
         """
         if self.game_over:
             return False, "Game is already over"
@@ -94,7 +94,7 @@ class Game:
         if (to_x, to_y) not in valid_moves:
             return False, "Invalid move"
 
-        # Make the move
+        # Effectuer le mouvement
         captured = self.board.move_piece(from_x, from_y, to_x, to_y)
         if captured != '  ':
             self.captured_pieces[self.current_player].append(captured)
@@ -102,10 +102,10 @@ class Game:
                 self.game_over = True
                 self.winner = self.current_player
 
-        # Switch to the next player
+        # Passer au joueur suivant
         self.switch_player()
         
-        # Update board state history and check for threefold repetition
+        # Mettre à jour l'état du plateau et vérifier les répétitions
         self.update_board_state()
         
         return True, "Move successful"

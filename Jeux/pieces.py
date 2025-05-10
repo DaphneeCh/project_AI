@@ -1,18 +1,10 @@
 """
-pieces.py - Defines the pieces used in Vietnamese Chess (Cờ Tướng)
-This module contains the Piece class and piece value constants used throughout the game.
+pieces.py - Définit les pièces utilisées dans les Échecs Vietnamiens (Cờ Tướng)
+Ce module contient la classe Piece et les constantes de valeur des pièces utilisées dans le jeu.
 """
 
-# Define piece types and values
+# Définir les valeurs des pièces
 PIECE_VALUES = {
-    'General': 10000,
-    'Rook': 9,
-    'Cannon': 4.5,
-    'Horse': 4,
-    'Elephant': 2,
-    'Advisor': 2,
-    'Soldier': 1,
-    # define value for each piece's acronyms
     'G': 10000,
     'R': 9,
     'C': 4.5,
@@ -22,7 +14,7 @@ PIECE_VALUES = {
     'S': 1
 }
 
-# Define piece types
+# Définir les types de pièces
 PIECE_TYPES = {
     'General': 'G',
     'Rook': 'R',
@@ -34,15 +26,16 @@ PIECE_TYPES = {
     'White': 'W',
     'Black': 'B'
 }
+# Dictionnaire inversé des types de pièces
 PIECE_TYPES_REVERSE = {v: k for k, v in PIECE_TYPES.items()}
 
-# Dictionary of piece symbols and their explanations
+# Dictionnaire des symboles de pièces et leurs explications
 PIECE_SYMBOLS = {
-    "R": "Rook (Xe): Moves horizontally or vertically any number of spaces.",
-    "C": "Cannon (Pháo): Moves like a Chariot but captures by jumping over one piece.",
-    "H": "Horse (Mã): Move in an 'L' shape, two squares in one direction and one square perpendicular. If there is another piece standing at the intersection adjacent to the vertical or horizontal step, the Horse is blocked and cannot move.",
-    "E": "Elephant (Tượng): Moves diagonally two spaces, cannot cross the river. If there is another piece standing in the middle of that diagonal line, the Elephant is blocked and cannot move.",
-    "A": "Advisor (Sĩ): Moves one space diagonally, restricted to the palace.",
-    "G": "General (Tướng): Moves one space in any direction, restricted to the palace. Two Generals cannot face each other directly on the same line. If they do, there must be a piece from either side blocking their view.",
-    "S": "Soldier (Binh): Moves one space forward, can move sideways after crossing the river.",
+    "R": "Rook (Xe): Se déplace horizontalement ou verticalement sur n'importe quel nombre de cases.",
+    "C": "Cannon (Pháo): Se déplace comme une Tour mais capture en sautant par-dessus une pièce.",
+    "H": "Horse (Mã): Se déplace en forme de 'L', deux cases dans une direction et une case perpendiculairement. Si une autre pièce se trouve à l'intersection adjacente à l'étape verticale ou horizontale, le Cheval est bloqué et ne peut pas se déplacer.",
+    "E": "Éléphant (Tượng): Se déplace en diagonale de deux cases, ne peut pas traverser la rivière. Si une autre pièce se trouve au milieu de cette ligne diagonale, l'Éléphant est bloqué et ne peut pas se déplacer.",
+    "A": "Advisor (Sĩ): Se déplace d'une case en diagonale, limité au palais.",
+    "G": "General (Tướng): Se déplace d'une case dans n'importe quelle direction, limité au palais. Deux Généraux ne peuvent pas se faire face directement sur la même ligne. Si c'est le cas, il doit y avoir une pièce de l'un ou l'autre camp bloquant leur vue.",
+    "S": "Soldier (Binh): Se déplace d'une case vers l'avant, peut se déplacer latéralement après avoir traversé la rivière.",
 }

@@ -1,6 +1,6 @@
 """
-AI_optimal.py - Implements an advanced AI using minimax with alpha-beta pruning
-This AI uses advanced techniques to find optimal moves in the Vietnamese Chess game.
+AI_optimal.py - Implémente une IA avancée utilisant l'algorithme minimax avec élagage alpha-bêta
+Cette IA utilise des techniques avancées pour trouver les coups optimaux dans le jeu d'échecs vietnamien.
 """
 
 from AI.AI_base import BaseAI
@@ -12,53 +12,53 @@ from Jeux.moves import get_valid_moves
 
 class AI(BaseAI):
     """
-    Optimal AI - Makes moves using minimax algorithm with alpha-beta pruning.
-    This AI uses advanced heuristics and optimization techniques for stronger play.
+    IA Optimale - Effectue des mouvements en utilisant l'algorithme minimax avec élagage alpha-bêta.
+    Cette IA utilise des heuristiques avancées et des techniques d'optimisation pour un jeu plus fort.
     """
     
     def __init__(self, color: str):
         """
-        Initialize the Optimal AI.
+        Initialise l'IA.
         
         Args:
-            color (str): The color of pieces the AI controls ('White' or 'Black')
+            color (str): La couleur de l'IA ('White' ou 'Black')
         """
         super().__init__(color)
         self.name = "Optimal AI (Advanced)"
-        self.search_depth = 3 # Look ahead 3 moves
+        self.search_depth = 3 # Profondeur de recherche pour l'algorithme minimax
     
     def get_move(self, board: Board) -> tuple[tuple[int, int], tuple[int, int]] | None:
         """
-        Select a move using the minimax algorithm with alpha-beta pruning.
+        Sélectionne un mouvement en utilisant l'algorithme minimax avec élagage alpha-bêta.
         
         Args:
-            board: The current board state
+            board: L'état actuel du plateau
             
         Returns:
-            tuple: ((from_x, from_y), (to_x, to_y)) representing the chosen move
+            tuple: ((from_x, from_y), (to_x, to_y)) représentant le mouvement choisi
         """
         
-        # Get all valid moves for the current player's pieces
+        # Obtient tous les mouvements valides possibles
         all_moves = self.get_all_valid_moves(self.color, board)
         
         if len(all_moves) == 0:
-            return None  # No valid moves available
+            return None  # Aucun mouvement valide disponible
         
-        # If there's only one move, return it immediately
+        # Si un seul mouvement est possible, le retourner immédiatement
         if len(all_moves) == 1:
             return all_moves[0]
         
-        # Initialize variables for the best move
+        # Initialise les variables pour le meilleur mouvement
         best_moves = []
         best_score = float('-inf')
         
-        # Order moves by a simple heuristic for better pruning
+        # Ordonner les mouvements selon une heuristique simple pour un meilleur élagage
         ordered_moves = self._order_moves(all_moves, board)
 
-        # Create a deep copy of the board to simulate the move
+        # Créer une copie du plateau pour l'évaluation
         board_copy = copy.deepcopy(board)
         for move in ordered_moves:
-            # Make the move on the board copy
+            # Effecuer le mouvement sur une copie du plateau
             from_pos, to_pos = move
             from_x, from_y = from_pos
             to_x, to_y = to_pos
@@ -66,47 +66,47 @@ class AI(BaseAI):
             start_cell = board_copy.grid[board_copy.to_1d(from_x, from_y)]
             target_cell = board_copy.grid[board_copy.to_1d(to_x, to_y)]
                 
-            # Move on the copied board
+            # Essayer de faire le mouvement sur la copie du plateau
             try:
                 capture = board_copy.move_piece(from_x, from_y, to_x, to_y)
                 if capture[1] == 'G' and capture[0] != self.color:
-                    # Immediately return a move that captures the opponent's general
+                    # Retourner immédiatement un mouvement qui capture le général adverse
                     return move
             except Exception as e:
                 continue
                 
-            # Use minimax with alpha-beta pruning to evaluate
+            # Utiliser minimax avec élagage alpha-bêta pour évaluer
             score = self._alpha_beta(board_copy, self.search_depth - 1, float('-inf'), float('inf'), False)
                 
-            # Check if this move is better
+            # Verifier si le score est meilleur que le meilleur score actuel
             if score > best_score:
                 best_score = score
                 best_moves = [move]
             elif score == best_score:
                 best_moves.append(move)
                 
-            # Undo the move
+            # Annuler le mouvement sur la copie du plateau
             board_copy.grid[board_copy.to_1d(from_x, from_y)] = start_cell
             board_copy.grid[board_copy.to_1d(to_x, to_y)] = target_cell
                 
-        # Return a random move from the best ones (in case of ties)
+        # Si plusieurs mouvements ont le même meilleur score, choisir l'un d'eux au hasard
         if len(best_moves)>0:
             return random.choice(best_moves)
         else:
-            # Fallback to a random move if something went wrong
+            # Revenir à un mouvement aléatoire si quelque chose s'est mal passé
             return random.choice(all_moves)
     
     def _order_moves(self, moves: list, board: Board) -> list:
         """
-        Order moves to improve alpha-beta pruning efficiency.
-        Capturing moves and center moves are checked first.
+        Ordonne les mouvements pour améliorer l'efficacité de l'élagage alpha-bêta.
+        Les mouvements de capture et les mouvements vers le centre sont vérifiés en premier.
         
         Args:
-            moves: List of possible moves
-            board: Current board state
+            moves: Liste des mouvements possibles
+            board: État actuel du plateau
             
         Returns:
-            list: Ordered list of moves
+            list: Liste ordonnée des mouvements
         """
         move_values = []
         
@@ -115,60 +115,59 @@ class AI(BaseAI):
             from_x, from_y = from_pos
             to_x, to_y = to_pos
             
-            # Start with base value
+            # Initialiser la valeur du mouvement
             value = 0
             
-            # Check if it's a capture
+            # Vérifier si le mouvement est une capture
             source = board.grid[board.to_1d(from_x, from_y)]
             target = board.grid[board.to_1d(to_x, to_y)]
             if target != '  ' and target[0] != source[0]:
-                # Value based on piece type
+                # Valeur basée sur le type de pièce
                 piece_type = target[1]
                 value = PIECE_VALUES[piece_type]
                     
-            # Add to the list
             move_values.append((value, move))
         
-        # Sort moves by value (highest first)
+        # Trier les mouvements en ordre décroissant de valeur
         move_values.sort(key=lambda x: x[0], reverse=True)
         
-        # Return just the moves
+        # Retourner uniquement les mouvements
         return [move for _, move in move_values]
     
     def _alpha_beta(self, board: Board, depth: int, alpha: float, beta: float, is_maximizing: bool):
         """
-        Minimax algorithm with alpha-beta pruning.
+        Algorithme minimax avec élagage alpha-bêta.
         
         Args:
-            board: Current board state
-            depth: How many moves to look ahead
-            alpha: Alpha value for pruning
-            beta: Beta value for pruning
-            is_maximizing: Whether we're maximizing or minimizing
-            current_color: Current player's color
+            board: État actuel du plateau
+            depth: Nombre de coups à anticiper
+            alpha: Valeur alpha pour l'élagage
+            beta: Valeur bêta pour l'élagage
+            is_maximizing: Si nous maximisons ou minimisons
             
         Returns:
-            float: Score for the current board position
+            float: Score pour la position actuelle du plateau
         """
         
-        # Base case: reached depth limit or game over
+        # Cas de base : limite de profondeur atteinte ou partie terminée
         if depth == 0:
             eval_score = self.evaluate_board(board)
             return eval_score
         
-        # get the current player's color
+        # Obtient la couleur du joueur actuel
         current_color = self.color if is_maximizing else 'B' if self.color == 'W' else 'W'
 
-        # Get all possible moves for current player
+        # Obtient tous les mouvements valides possibles pour le joueur actuel
         all_possible_moves = self.get_all_valid_moves(current_color, board)
         
-        # No moves available (stalemate)
+        # Si aucun mouvement valide n'est disponible
         if len(all_possible_moves) == 0:
             return 0
         
-        # Order moves for better pruning
+        # Ordonner les mouvements pour améliorer l'efficacité de l'élagage
         ordered_moves = self._order_moves(all_possible_moves, board)
         
+        # Créer une copie du plateau pour l'évaluation
         board_copy = copy.deepcopy(board)
         if is_maximizing:
             best_score = float('-inf')
@@ -177,30 +176,30 @@ class AI(BaseAI):
                 from_x, from_y = from_pos
                 to_x, to_y = to_pos
                 
-                # Save original board state
+                # Sauvegarder l'état d'origine du plateau
                 start_cell = board_copy.grid[board_copy.to_1d(from_x, from_y)]
                 target_cell = board_copy.grid[board_copy.to_1d(to_x, to_y)]
                 
-                # Make move
+                # Simuler le mouvement
                 try:
                     capture = board_copy.move_piece(from_x, from_y, to_x, to_y)
                     if capture[1] == 'G' and capture[0] != current_color:
-                        # Return a high score for capturing the general
+                        # Retourner une haute valeur pour capturer le général
                         return 10000
                 except Exception as e:
                     continue
                 
-                # Recursively evaluate this move
+                # Évaluer ce mouvement récursivement
                 score = self._alpha_beta(board_copy, depth - 1, alpha, beta, False)
                 best_score = max(best_score, score)
                 
-                # Undo move on the copied board
+                # Annuler le mouvement sur la copie du plateau
                 board_copy.grid[board_copy.to_1d(from_x, from_y)] = start_cell
                 board_copy.grid[board_copy.to_1d(to_x, to_y)] = target_cell
                 
                 if best_score >= beta:
-                    break  # Beta cutoff
-                # Alpha update
+                    break  # Elagage bêta
+                # mise à jour alpha
                 alpha = max(alpha, best_score)
                 
             return best_score
@@ -211,89 +210,31 @@ class AI(BaseAI):
                 from_x, from_y = from_pos
                 to_x, to_y = to_pos
                 
-                # Save original board state
+                # Sauvegarder l'état d'origine du plateau
                 start_cell = board_copy.grid[board_copy.to_1d(from_x, from_y)]
                 target_cell = board_copy.grid[board_copy.to_1d(to_x, to_y)]
                 
-                # Make move
+                # Simuler le mouvement
                 try:
                     capture = board_copy.move_piece(from_x, from_y, to_x, to_y)
                     if capture[1] == 'G' and capture[0] != current_color:
-                        # Return a high score for capturing the general
+                        # Retourner une basse valeur pour capturer le général
                         return -10000
                 except Exception:
                     continue
                 
-                # Recursively evaluate this move
+                # Évaluer ce mouvement récursivement
                 score = self._alpha_beta(board_copy, depth - 1, alpha, beta, True)
                 best_score = min(best_score, score)
                 
-                # Undo move on the copied board
+                # Annuler le mouvement sur la copie du plateau
                 board_copy.grid[board.to_1d(from_x, from_y)] = start_cell
                 board_copy.grid[board.to_1d(to_x, to_y)] = target_cell
                 
                 if best_score < alpha:
-                    break  # Alpha cutoff
-                # Beta update
+                    break  # Elagage alpha
+                # Mise à jour bêta
                 beta = min(beta, best_score)
                 
             return best_score
     
-    # def evaluate_board(self, board):
-    #     """
-    #     Advanced evaluation of the board position from AI's perspective.
-    #     Higher values are better for the AI.
-        
-    #     Args:
-    #         board: The game board to evaluate
-            
-    #     Returns:
-    #         float: A score representing how favorable the position is
-    #     """
-    #     material_score = 0
-    #     positional_score = 0
-    #     mobility_score = 0
-        
-    #     # Material evaluation
-    #     for idx in range(len(board.grid)):
-    #         piece = board.grid[idx]
-    #         if piece != '  ':
-    #             # Base material value of the piece
-    #             piece_color, piece_type = piece[0], piece[1]
-    #             piece_value = PIECE_VALUES[piece_type]
-    #             multiplier = 1 if piece_color == self.color else -1
-    #             material_score += multiplier * piece_value
-        
-    #     # Check for checkmate conditions - this is simplified
-    #     # We don't have an easy way to check for checkmate, so we'll just check
-    #     # if either general is missing
-        
-    #     ai_has_general = False
-    #     opponent_has_general = False
-        
-    #     for idx in range(len(board.grid)):
-    #         piece = board.grid[idx]
-    #         if piece and piece[1] == 'G':
-    #             if piece[0] == self.color:
-    #                 ai_has_general = True
-    #             else:
-    #                 opponent_has_general = True
-        
-    #     if not opponent_has_general:
-    #         return 10000  # AI has won
-    #     if not ai_has_general:
-    #         return -10000  # AI has lost
-        
-    #     # Mobility evaluation
-    #     # Count the number of valid moves for each piece
-    #     for idx in range(len(board.grid)):
-    #         piece = board.grid[idx]
-    #         if piece and piece[0] == self.color:
-    #             from_x, from_y = board.to_2d(idx)
-    #             valid_moves = get_valid_moves(from_x, from_y, board)
-    #             mobility_score += len(valid_moves)
-            
-            
-    #     # Final score focusing primarily on material advantage
-    #     return material_score + positional_score + mobility_score
-

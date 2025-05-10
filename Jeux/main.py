@@ -1,7 +1,7 @@
 """
-main.py - Entry point for the Vietnamese Chess (Cờ Tướng) game
-This module initializes the game and handles the main game loop, user input,
-and game flow control.
+main.py - Point d'entrée pour le jeu d'Échecs Vietnamien (Cờ Tướng)
+Ce module initialise le jeu et gère la boucle principale du jeu, les entrées utilisateur,
+et le contrôle du déroulement du jeu.
 """
 
 import time
@@ -10,7 +10,6 @@ import sys
 import csv
 from datetime import datetime
 
-# Fix import errors by adding the project root to Python path
 project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_dir)
 
@@ -34,13 +33,13 @@ def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 def display_title():
-    """Display the game title"""
+    """Affichage du titre du jeu"""
     print("\n" + "=" * 60)
     print("               VIETNAMESE CHESS (CỜ TƯỚNG)")
     print("=" * 60)
 
 def display_instructions():
-    """Display game instructions"""
+    """Affichage des instructions du jeu"""
     print("\n=== VIETNAMESE CHESS (CỜ TƯỚNG) INSTRUCTIONS ===")
     print("1. Enter the coordinates of a piece in 'x,y' format to select it")
     print("2. Valid moves for that piece will be displayed")
@@ -53,7 +52,7 @@ def display_instructions():
     print("=== ENJOY THE GAME! ===\n")
 
 def display_main_menu():
-    """Display the main menu options"""
+    """Affichage du menu principal"""
     clear_screen()
     display_title()
     print("\nMAIN MENU:")
@@ -75,7 +74,7 @@ def display_main_menu():
             print("Please enter a valid number.")
 
 def display_ai_menu():
-    """Display the AI difficulty selection menu"""
+    """Affichage du menu de sélection de l'IA"""
     clear_screen()
     display_title()
     print("\nSELECT AI DIFFICULTY:")
@@ -103,7 +102,7 @@ def display_ai_menu():
             print("Please enter a valid number.")
 
 def display_color_menu():
-    """Display the player color selection menu"""
+    """Affichage du menu de sélection de la couleur"""
     clear_screen()
     display_title()
     print("\nSELECT YOUR COLOR:")
@@ -123,10 +122,10 @@ def display_color_menu():
 
 def select_ai(player_name):
     """
-    Select AI difficulty for AI vs AI mode
-    
+    Selectionner AI pour le mode IA contre IA
+
     Args:
-        player_name: String to display (e.g., "First AI" or "Second AI")
+        player_name: String à afficher (e.g., "First AI" or "Second AI")
         
     Returns:
         tuple: (ai_level, ai_name)
@@ -134,12 +133,12 @@ def select_ai(player_name):
     clear_screen()
     display_title()
     print(f"\nSELECT {player_name} DIFFICULTY:")
-    print("0. Level 0 - Random AI (Makes completely random moves)")
+    print("0. Level 0 - Random AI")
     
     if AI_AVAILABLE:
-        print("1. Level 1 - Beginner AI (Basic strategy, prioritizes captures)")
-        print("2. Level 2 - Intermediate AI (Looks ahead a few moves)")
-        print("3. Level 3 - Advanced AI (Optimal play)")
+        print("1. Level 1 - Beginner AI")
+        print("2. Level 2 - Intermediate AI")
+        print("3. Level 3 - Advanced AI")
     else:
         print("(Additional AI levels not available)")
     
@@ -154,9 +153,9 @@ def select_ai(player_name):
                 if choice == 4:
                     return None, None
                 
-                ai_level = choice  # Convert to 0-based level
+                ai_level = choice # Convertir le choix en niveau d'IA
                 
-                # Get AI name based on level
+                # Déterminer le nom de l'IA en fonction du niveau
                 if ai_level == 0:
                     ai_name = "Random AI (Level 0)"
                 elif ai_level == 1:
@@ -174,8 +173,7 @@ def select_ai(player_name):
 
 def play_human_vs_human():
     """
-    Play game between two human players.
-    This is the original play_game function.
+    Partie entre deux joueurs humains.
     """
     game = Game()
     display_instructions()
@@ -189,14 +187,14 @@ def play_human_vs_human():
                 print("Game terminated.")
                 break
             
-            # Display instructions
+            # Afficher les instructions
             if from_input.lower() == 'help':
                 display_instructions()
                 continue
             
-            # Check for explain command
+            # Vérifier la commande d'explication
             if from_input.lower().startswith('explain '):
-                # Existing explain code...
+                # Extraire les coordonnées
                 coords = from_input.lower().replace('explain ', '')
                 try:
                     exp_x, exp_y = map(int, coords.split(','))
@@ -210,13 +208,13 @@ def play_human_vs_human():
                         print("No piece at the selected position.")
                         continue
                     
-                    # Display piece information
+                    # Afficher les informations sur la pièce
                     print(f"\n--- {piece} Information ---")
                     print(f"Type: {PIECE_TYPES_REVERSE[piece[1]]}")
                     print(f"Player's Color: {'White' if piece[0] == 'W' else 'Black'}")
                     print(f"Position: ({exp_x}, {exp_y})")
                     
-                    # Add piece description from PIECE_SYMBOLS
+                    # Ajouter la description de la pièce à partir de PIECE_SYMBOLS
                     if piece[1] in PIECE_SYMBOLS:
                         print(f"Description: {PIECE_SYMBOLS[piece[1]]}")
 
@@ -225,10 +223,10 @@ def play_human_vs_human():
                     print("Invalid format for explain command. Use 'explain x,y'")
                     continue
                 
-            # Rest of the human player turn logic...
+            # La logique pour le tour du joueur humain...
             from_x, from_y = map(int, from_input.split(','))
             
-            # Check if the position is valid and has a piece
+            # Vérifier si la position est valide et a une pièce
             if not game.board.is_in_bounds(from_x, from_y):
                 print("Position out of bounds. Try again.")
                 continue
@@ -238,7 +236,7 @@ def play_human_vs_human():
                 print("No piece at the selected position. Try again.")
                 continue
                 
-            # Show valid moves for the selected piece
+            # Afficher les mouvements valides pour la pièce sélectionnée
             if (piece[0] == 'W' and game.current_player == 'White') or (piece[0] == 'B' and game.current_player == 'Black'):
                 valid_moves = get_valid_moves(from_x,from_y, game.board)
                 if not valid_moves:
@@ -255,7 +253,7 @@ def play_human_vs_human():
                 break
                 
             if to_input.lower() == 'back':
-                continue  # Allow player to select a different piece
+                continue  # Permettre au joueur de sélectionner une autre pièce
                 
             to_x, to_y = map(int, to_input.split(','))
             
@@ -270,7 +268,7 @@ def play_human_vs_human():
             print("\nGame terminated.")
             break
     
-    # Final game state
+    # État final du jeu
     if game.game_over:
         game.display_game()
         print(f"Game over! Winner: {game.winner}")
@@ -279,18 +277,18 @@ def play_human_vs_human():
 
 def play_human_vs_ai(ai_level, human_color='White'):
     """
-    Play game between a human and an AI.
+    Joue une partie entre un humain et une IA.
     
     Args:
-        ai_level (int): The difficulty level of the AI (0-3)
-        human_color (str): The color of the human player ('White' or 'Black')
+        ai_level (int): Le niveau de difficulté de l'IA (0-3)
+        human_color (str): La couleur du joueur humain ('White' ou 'Black')
     """
     game = Game()
     display_instructions()
     
     ai_color = 'Black' if human_color == 'White' else 'White'
     
-    # Create the appropriate AI based on the selected level
+    # Créer l'IA en fonction du niveau sélectionné
     if ai_level == 0:
         ai = RandomAI(ai_color)
         ai_name = "Random AI (Level 0)"
@@ -304,7 +302,7 @@ def play_human_vs_ai(ai_level, human_color='White'):
         ai = AdvancedAI(ai_color)
         ai_name = "Advanced AI (Level 3)"
     else:
-        # Fallback to Random AI
+        # Si l'IA n'est pas disponible, utiliser RandomAI par défaut
         ai = RandomAI(ai_color)
         ai_name = "Random AI (Level 0)"
     
@@ -314,7 +312,7 @@ def play_human_vs_ai(ai_level, human_color='White'):
     while not game.game_over:
         game.display_game()
         
-        # Human player's turn
+        # Le tour du joueur humain
         if game.current_player == human_color:
             print(f"Your turn ({human_color}).")
             
@@ -324,14 +322,13 @@ def play_human_vs_ai(ai_level, human_color='White'):
                     print("Game terminated.")
                     break
                 
-                # Display instructions
+                # Afficher les instructions
                 if from_input.lower() == 'help':
                     display_instructions()
                     continue
                 
-                # Check for explain command
+                # Vérifier la commande d'explication
                 if from_input.lower().startswith('explain '):
-                    # Same explain code as in human vs human...
                     coords = from_input.lower().replace('explain ', '')
                     try:
                         exp_x, exp_y = map(int, coords.split(','))
@@ -340,18 +337,18 @@ def play_human_vs_ai(ai_level, human_color='White'):
                             print("Position out of bounds. Try again.")
                             continue
                             
-                        piece = game.board.grid[game.board.to_1d(exp_x, exp_y)]  # Fixed access
+                        piece = game.board.grid[game.board.to_1d(exp_x, exp_y)] 
                         if not piece:
                             print("No piece at the selected position.")
                             continue
                         
-                        # Display piece information
+                        # Afficher les informations sur la pièce
                         print(f"\n--- {piece} Information ---")
                         print(f"Type: {PIECE_TYPES_REVERSE[piece[1]]}")
                         print(f"Player's Color: {'White' if piece[0] == 'W' else 'Black'}")
                         print(f"Position: ({exp_x}, {exp_y})")
                         
-                        # Add piece description from PIECE_SYMBOLS
+                        # Ajouter la description de la pièce à partir de PIECE_SYMBOLS
                         if piece[1] in PIECE_SYMBOLS:
                             print(f"Description: {PIECE_SYMBOLS[piece[1]]}")
                         
@@ -359,11 +356,10 @@ def play_human_vs_ai(ai_level, human_color='White'):
                     except ValueError:
                         print("Invalid format for explain command. Use 'explain x,y'")
                         continue
-                
-                # Rest of human player logic...
+                # La logique pour le tour du joueur humain...
                 from_x, from_y = map(int, from_input.split(','))
                 
-                # Check if the position is valid and has a piece
+                # Vérifier si la position est valide et a une pièce
                 if not game.board.is_in_bounds(from_x, from_y):
                     print("Position out of bounds. Try again.")
                     continue
@@ -373,7 +369,7 @@ def play_human_vs_ai(ai_level, human_color='White'):
                     print("No piece at the selected position. Try again.")
                     continue
                     
-                # Show valid moves for the selected piece
+                # Afficher les mouvements valides pour la pièce sélectionnée
                 if (piece[0] == 'W' and game.current_player == 'White') or (piece[0] == 'B' and game.current_player == 'Black'):
                     valid_moves = get_valid_moves(from_x,from_y, game.board)
                     if not valid_moves:
@@ -390,8 +386,9 @@ def play_human_vs_ai(ai_level, human_color='White'):
                     break
                     
                 if to_input.lower() == 'back':
-                    continue  # Allow player to select a different piece
-                    
+                    continue # Permettre au joueur de sélectionner une autre pièce
+
+                # Extraire les coordonnées de destination
                 to_x, to_y = map(int, to_input.split(','))
                 
                 success, message = game.make_move((from_x, from_y), (to_x, to_y))
@@ -405,10 +402,10 @@ def play_human_vs_ai(ai_level, human_color='White'):
                 print("\nGame terminated.")
                 break
                 
-        # AI player's turn
+        # Le tour de l'IA
         else:
             print(f"\n{ai_name} is thinking...")
-            time.sleep(1)  # Add a small delay to make it seem like the AI is "thinking"
+            time.sleep(1)
             
             ai_move = ai.get_move(game.board)
             
@@ -417,20 +414,20 @@ def play_human_vs_ai(ai_level, human_color='White'):
                 from_x, from_y = from_pos
                 to_x, to_y = to_pos
                 
-                # Show what piece the AI is moving
-                piece = game.board.grid[game.board.to_1d(from_x, from_y)]  # Fixed access
+                # Afficher le mouvement de l'IA
+                piece = game.board.grid[game.board.to_1d(from_x, from_y)] 
                 print(f"AI moves {piece} from ({from_x},{from_y}) to ({to_x},{to_y})")
                 
                 success, message = game.make_move((from_x, from_y), (to_x, to_y))
                 print(message)
                 
-                time.sleep(1)  # Give player time to see the AI's move
+                time.sleep(1) 
             else:
                 print("AI couldn't find a valid move!")
                 game.game_over = True
                 print("Draw !")
     
-    # Final game state
+    # État final du jeu
     if game.game_over:
         game.display_game()
         print(f"Game over! Winner: {game.winner}")
@@ -439,22 +436,22 @@ def play_human_vs_ai(ai_level, human_color='White'):
 
 def play_ai_vs_ai():
     """
-    Let two AI players compete against each other
+    Partie entre deux IA.
     """
-    # Select first AI (White)
+    # Sélection de l'IA pour le joueur blanc
     white_ai_level, white_ai_name = select_ai("WHITE AI")
     if white_ai_level is None:
         return  # User went back to main menu
     
-    # Select second AI (Black)
+    # Selection de l'IA pour le joueur noir
     black_ai_level, black_ai_name = select_ai("BLACK AI")
     if black_ai_level is None:
-        return  # User went back to main menu
+        return  # L'utilisateur est revenu au menu principal
     
-    # Create the game
+    # Créer une nouvelle partie
     game = Game()
     
-    # Create AI players
+    # Créer les IA en fonction des niveaux sélectionnés
     if white_ai_level == 0:
         white_ai = RandomAI('White')
     elif white_ai_level == 1:
@@ -473,7 +470,7 @@ def play_ai_vs_ai():
     elif black_ai_level == 3:
         black_ai = AdvancedAI('Black')
     
-    # Settings for AI vs AI display
+    # Affichage des informations sur la partie
     print(f"\nMatch: {white_ai_name} (White) vs. {black_ai_name} (Black)")
     print("\nOptions:")
     print("1. Fast play (minimal display)")
@@ -488,11 +485,11 @@ def play_ai_vs_ai():
             print("Please enter a valid number.")
     
     move_count = 0
-    max_moves = 100  # Prevent infinite games
+    max_moves = 100  #Par défaut, 100 coups maximum
     
-    # Game loop
+    # Jeu en cours
     while not game.game_over and move_count < max_moves:
-        # Display the board based on selected mode
+        # Affichage de l'état du jeu
         if mode >= 2:
             clear_screen()
             display_title()
@@ -506,7 +503,7 @@ def play_ai_vs_ai():
         if mode >= 2:
             print(f"\n{current_name} is thinking...")
         
-        # Get AI's move
+        # Obtenir le mouvement de l'IA
         ai_move = current_ai.get_move(game.board)
         
         if ai_move:
@@ -514,10 +511,10 @@ def play_ai_vs_ai():
             from_x, from_y = from_pos
             to_x, to_y = to_pos
             
-            # Get the piece being moved
-            piece = game.board.grid[game.board.to_1d(from_x, from_y)]  # Fixed access
+            # Afficher le mouvement de l'IA
+            piece = game.board.grid[game.board.to_1d(from_x, from_y)] 
             
-            # Make the move
+            # Effectuer le mouvement
             success, message = game.make_move((from_x, from_y), (to_x, to_y))
             
             if mode >= 2:
@@ -526,20 +523,20 @@ def play_ai_vs_ai():
             
             move_count += 1
             
-            # Add delay for normal mode
+            # Ajouter un délai pour le mode normal
             if mode == 2:
                 time.sleep(3)
 
-            # Add extra delay for slow mode
+            # Ajouter un délai pour le mode lent
             if mode == 3:
-                # wait for user input
+                # Pause entre les mouvements
                 input("Press Enter to continue...")
         else:
             print(f"{current_name} couldn't find a valid move!")
             game.game_over = True
             print("Draw !")
     
-    # Final game state
+    # Fin de la partie
     clear_screen()
     display_title()
     print("\nGAME OVER")
@@ -555,14 +552,14 @@ def play_ai_vs_ai():
             winning_ai = white_ai_name if game.winner == 'White' else black_ai_name
             print(f"{winning_ai} wins!")
     
-    # Game statistics
+    # Afficher le nombre total de mouvements
     print(f"\nTotal moves: {move_count}")
     
     input("\nPress Enter to continue...")
 
 def run_ai_tournament():
     """
-    Run multiple games between different AI levels and save results to CSV
+    Exécute plusieurs parties entre différentes IA et enregistre les résultats dans un fichier CSV
     """
     clear_screen()
     display_title()
@@ -584,55 +581,55 @@ def run_ai_tournament():
     if mode_choice == 3:
         return
     
-    # Number of games to run
+    # Le nombre de parties à effectuer
     try:
         num_games = int(input("\nEnter number of games to run (10-500): "))
-        num_games = max(10, min(500, num_games))  # Limit between 10 and 500
+        num_games = max(10, min(50, num_games))  # Limite entre 10 et 50
     except ValueError:
         num_games = 50
         print("Invalid input. Using default of 50 games.")
     
     print(f"\nRunning {num_games} games per matchup.")
     
-    # Available AI levels
-    ai_levels = [0]  # Always include Random AI
+    # Tous les niveaux d'IA disponibles
+    ai_levels = [0] # Débuter avec l'IA de niveau 0
     ai_names = ["Random AI (Level 0)"]
     
     if AI_AVAILABLE:
         ai_levels.extend([1, 2, 3])
         ai_names.extend(["Beginner AI (Level 1)", "Intermediate AI (Level 2)", "Advanced AI (Level 3)"])
     
-    # Prepare results file
+    # Créer un fichier CSV pour enregistrer les résultats
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"ai_tournament_results_{timestamp}.csv"
     
     with open(filename, 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile)
-        # Write header row
+        # Ecrire l'en-tête du fichier CSV
         csvwriter.writerow(['White AI', 'Black AI', 'Total Games', 'White Wins', 'Black Wins', 
                            'Draws', 'White Win %', 'Black Win %', 'Draw %', 'Avg Moves'])
         
-        if mode_choice == 1:  # Full tournament mode
+        if mode_choice == 1:  # Le tournoi complet
             print("\nRunning full tournament with all AI combinations...")
             
-            # Run games for each pair of AIs
+            # Exécuter tous les matchs entre les IA
             for white_idx, white_level in enumerate(ai_levels):
                 for black_idx, black_level in enumerate(ai_levels):
                     run_matchup(white_level, black_level, ai_names[white_idx], ai_names[black_idx], 
                                num_games, csvwriter)
         
-        else:  # Single matchup mode
-            # Select first AI (White)
+        else:  # Match spécifique entre deux IA
+            # Sélectionner la première IA (Blanc)
             white_ai_level, white_ai_name = select_ai("WHITE AI")
             if white_ai_level is None:
-                return  # User went back to main menu
+                return  # L'utilisateur est revenu au menu principal
             
-            # Select second AI (Black)
+            # Sélectionner la deuxième IA (Noir)
             black_ai_level, black_ai_name = select_ai("BLACK AI")
             if black_ai_level is None:
-                return  # User went back to main menu
+                return  # L'utilisateur est revenu au menu principal
                 
-            # Run the selected matchup
+            # Exécuter le match entre les deux IA sélectionnées
             run_matchup(white_ai_level, black_ai_level, white_ai_name, black_ai_name, 
                        num_games, csvwriter)
     
@@ -641,39 +638,39 @@ def run_ai_tournament():
 
 def run_matchup(white_level, black_level, white_name, black_name, num_games, csvwriter):
     """
-    Run a tournament matchup between two specific AIs and record results
+    Exécute un match entre deux IA spécifiques et enregistre les résultats
     
     Args:
-        white_level (int): AI level for White
-        black_level (int): AI level for Black
-        white_name (str): Name of White AI
-        black_name (str): Name of Black AI
-        num_games (int): Number of games to run
-        csvwriter: CSV writer object for recording results
+        white_level (int): Niveau d'IA pour les Blancs
+        black_level (int): Niveau d'IA pour les Noirs
+        white_name (str): Nom de l'IA des Blancs
+        black_name (str): Nom de l'IA des Noirs
+        num_games (int): Nombre de parties à jouer
+        csvwriter: Objet CSV writer pour l'enregistrement des résultats
     """
     print(f"\nRunning {num_games} games: {white_name} (White) vs {black_name} (Black)")
     
-    # Statistics
+    # Initialiser les statistiques
     white_wins = 0
     black_wins = 0
     draws = 0
     total_moves = 0
     
-    # Progress bar
+    # La barre de progression
     for game_num in range(num_games):
         print(f"Game {game_num+1}/{num_games}...", end='\r')
         
-        # Create a new game
+        # Créer une nouvelle partie
         game = Game()
         
-        # Create AI players
+        # Créer les IA pour cette partie
         white_ai = create_ai('White', white_level)
         black_ai = create_ai('Black', black_level)
         
-        # Run the game
+        # Exécuter la partie entre les IA
         move_count, winner = run_ai_game(game, white_ai, black_ai)
         
-        # Update statistics
+        # Mettre à jour les statistiques
         if winner == 'White':
             white_wins += 1
         elif winner == 'Black':
@@ -683,13 +680,13 @@ def run_matchup(white_level, black_level, white_name, black_name, num_games, csv
         
         total_moves += move_count
     
-    # Calculate final statistics
+    # Calculer les resultats
     avg_moves = total_moves / num_games
     white_win_pct = (white_wins / num_games) * 100
     black_win_pct = (black_wins / num_games) * 100
     draw_pct = (draws / num_games) * 100
     
-    # Write results for this pair
+    # Enregistrer les résultats dans le fichier CSV
     csvwriter.writerow([
         white_name, 
         black_name, 
@@ -703,21 +700,21 @@ def run_matchup(white_level, black_level, white_name, black_name, num_games, csv
         f"{avg_moves:.1f}"
     ])
     
-    # Display results
-    print(" " * 30, end='\r')  # Clear progress line
+    # Afficher les résultats
+    print(" " * 30, end='\r')  
     print(f"Results: White wins: {white_wins}, Black wins: {black_wins}, Draws: {draws}")
     print(f"Average moves per game: {avg_moves:.1f}")
 
 def create_ai(color, level):
     """
-    Create an AI instance of the specified level
+    Crée une instance d'IA du niveau spécifié
     
     Args:
-        color (str): 'White' or 'Black'
-        level (int): AI level (0-3)
+        color (str): 'White' ou 'Black'
+        level (int): Niveau d'IA (0-3)
         
     Returns:
-        AI instance
+        Instance d'IA
     """
     if level == 0:
         return RandomAI(color)
@@ -728,92 +725,90 @@ def create_ai(color, level):
     elif level == 3:
         return AdvancedAI(color)
     else:
-        return RandomAI(color)  # Default to Random AI
+        return RandomAI(color)  # Par défaut, IA aléatoire
 
 def run_ai_game(game, white_ai, black_ai, max_moves=100):
     """
-    Run a single game between two AIs
+    Exécute une partie unique entre deux IAs
     
     Args:
-        game: Game instance
-        white_ai: AI instance for White player
-        black_ai: AI instance for Black player
-        max_moves: Maximum number of moves before declaring a draw
+        game: Instance de jeu
+        white_ai: Instance d'IA pour le joueur Blanc
+        black_ai: Instance d'IA pour le joueur Noir
+        max_moves: Nombre maximum de coups avant de déclarer une partie nulle
     
     Returns:
-        tuple: (move_count, winner)
+        tuple: (nombre_de_coups, vainqueur)
     """
     move_count = 0
     
     while not game.game_over and move_count < max_moves:
-        # Get current AI
+        # Obtient l'IA actuelle en fonction du joueur
         current_ai = white_ai if game.current_player == 'White' else black_ai
-        
-        # Get and make move
         ai_move = current_ai.get_move(game.board)
-        
+        # Affiche le mouvement de l'IA
         if ai_move:
             from_pos, to_pos = ai_move
-            success, message = game.make_move(from_pos, to_pos)  # Capture return values
-            if success:  # Only increment move count if move was successful
+            success, message = game.make_move(from_pos, to_pos)  # Effectuer le mouvement
+            if success:  # Si le mouvement est valide, on augmente le compteur de coups
                 move_count += 1
             else:
-                # If move failed, there's an issue with the AI's move generation
+                # Si le mouvement n'est pas valide, on affiche un message d'erreur
                 print(f"AI attempted invalid move: {message}")
                 game.game_over = True
                 game.winner = 'Black' if game.current_player == 'White' else 'White'
         else:
-            # AI has no valid moves
+            # Si l'IA ne trouve pas de mouvement valide, on déclare la partie nulle
             game.game_over = True
-            game.winner = None  # Draw condition
+            game.winner = None  # Aucune victoire, partie nulle
     
-    # Check for draw due to move limit
+    # Vérifier si la partie est nulle après le nombre maximum de coups (100 coups)
     if move_count >= max_moves and not game.game_over:
         return move_count, 'Draw'
     
-    # Handle threefold repetition draw
+    # Le match nul par répétition triple
     if (isinstance(game.winner, str) and game.winner.startswith("Draw")) or game.winner is None:
         return move_count, 'Draw'
     
     return move_count, game.winner
 
 def main():
-    """Main function that handles the game menu and selection logic"""
+    """Fonction principale qui gère le menu du jeu et la logique de sélection"""
     while True:
         choice = display_main_menu()
         
-        if choice == 1:  # Human vs. Human
+        if choice == 1:  # Humain vs Humain
             play_human_vs_human()
             
-        elif choice == 2:  # Human vs. AI
+        elif choice == 2:  # Humain vs IA
             ai_choice = display_ai_menu()
             
-            if ai_choice == 5:  # Back to main menu
+            if ai_choice == 5:  # Retour au menu principal
                 continue
             
             color_choice = display_color_menu()
             
-            if color_choice == 3:  # Back to AI menu
+            if color_choice == 3:  # Retour au menu IA
                 continue
             
             human_color = 'White' if color_choice == 1 else 'Black'
-            ai_level = ai_choice - 1  # Convert menu choice to 0-based level
+            ai_level = ai_choice - 1  # Convertir le choix en niveau d'IA
             
             play_human_vs_ai(ai_level, human_color)
             
-        elif choice == 3:  # AI vs. AI
+        elif choice == 3:  # IA vs IA
             play_ai_vs_ai()
             
-        elif choice == 4:  # AI Tournament
+        elif choice == 4:  # Le tournoi IA
             run_ai_tournament()
             
-        elif choice == 5:  # Instructions
+        elif choice == 5:  # Les instructions
             clear_screen()
             display_title()
             display_instructions()
             input("\nPress Enter to return to the Main Menu...")
             
-        elif choice == 6:  # Exit
+        elif choice == 6:  # Quitter le jeu
             print("\nThanks for playing Vietnamese Chess (Cờ Tướng)!")
             break
 
