@@ -583,7 +583,7 @@ def run_ai_tournament():
     
     # Le nombre de parties à effectuer
     try:
-        num_games = int(input("\nEnter number of games to run (10-500): "))
+        num_games = int(input("\nEnter number of games to run (10-50): "))
         num_games = max(10, min(50, num_games))  # Limite entre 10 et 50
     except ValueError:
         num_games = 50
