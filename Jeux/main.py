@@ -19,6 +19,7 @@ from Jeux.moves import get_valid_moves
 from Jeux.pieces import *
 
 try:
+    from AI.AI_base import BaseAI
     from AI.AI_lv0 import AI as RandomAI
     from AI.AI_lv1 import AI as BeginnerAI
     from AI.AI_lv2 import AI as IntermediateAI
@@ -584,7 +585,7 @@ def run_ai_tournament():
     # Le nombre de parties à effectuer
     try:
         num_games = int(input("\nEnter number of games to run (50-100): "))
-        num_games = max(50, min(50, num_games))  
+        num_games = max(50, min(100, num_games))  
     except ValueError:
         num_games = 50
         print("Invalid input. Using default of 50 games.")
@@ -727,7 +728,7 @@ def create_ai(color, level):
     else:
         return RandomAI(color)  # Par défaut, IA aléatoire
 
-def run_ai_game(game, white_ai, black_ai, max_moves=100):
+def run_ai_game(game: Game, white_ai, black_ai, max_moves=100):
     """
     Exécute une partie unique entre deux IAs
     
@@ -755,8 +756,7 @@ def run_ai_game(game, white_ai, black_ai, max_moves=100):
             else:
                 # Si le mouvement n'est pas valide, on affiche un message d'erreur
                 print(f"AI attempted invalid move: {message}")
-                game.game_over = True
-                game.winner = 'Black' if game.current_player == 'White' else 'White'
+                
         else:
             # Si l'IA ne trouve pas de mouvement valide, on déclare la partie nulle
             game.game_over = True

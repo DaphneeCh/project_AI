@@ -25,7 +25,7 @@ class AI(BaseAI):
         """
         super().__init__(color)
         self.name = "Optimal AI (Advanced)"
-        self.search_depth = 3 # Profondeur de recherche pour l'algorithme minimax
+        self.search_depth = 3 # Profondeur de recherche 
     
     def get_move(self, board: Board) -> tuple[tuple[int, int], tuple[int, int]] | None:
         """
